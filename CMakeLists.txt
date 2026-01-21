@@ -3,4 +3,6 @@ project(licenta)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(licenta main.cpp)
+add_executable(licenta main.cpp
+        src/mpu6500.cpp
+        Include/mpu6500.h)
