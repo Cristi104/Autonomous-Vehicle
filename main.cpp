@@ -2,10 +2,12 @@
 // Created by cristi on 22.01.2026.
 //
 #include <chrono>
+#include <iostream>
 #include <thread>
 
 #include "Include/mpu6500.h"
 #include "Include/motorDriver.h"
+#include "Include/ultrasonicDistance.h"
 
 
 int main() {
@@ -18,17 +20,32 @@ int main() {
     // pwmr.setDuty(50000);
     // pwml.enable(true);
     // pwmr.enable(true);
+    gpiod_chip *chip = gpiod_chip_open("/dev/gpiochip0");
+    if (!chip) {
+        std::cerr << "Failed to open gpiochip0" << std::endl;
+        return 1;
+    }
 
-    MotorDriver driver(20, 16, 26, 19);
-    driver.setDirectionLF(true);
-    driver.setDirectionRF(true);
-    driver.setSpeedL(50);
-    driver.setSpeedR(50);
-    driver.startMotor();
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-    driver.stopMotor();
+    UltrasonicDistance ultrasonic(chip, 8, 7);
+    for (int i=0; i<10; i++) {
+        ultrasonic.ping();
+        while (!ultrasonic.update());
+        std::cout << ultrasonic.getDistance() << std::endl;
+        // std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+
+    // MotorDriver driver(chip, 20, 16, 26, 19);
+    // driver.setDirectionLF(true);
+    // driver.setDirectionRF(true);
+    // driver.setSpeedL(50);
+    // driver.setSpeedR(50);
+    // driver.startMotor();
+    // std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    // driver.stopMotor();
     // pwml.enable(false);
     // pwmr.enable(false);
+    if (chip)
+        gpiod_chip_close(chip);
 }
 
 // int main() {

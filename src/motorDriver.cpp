@@ -9,14 +9,8 @@
 #include <iostream>
 
 
-MotorDriver::MotorDriver(unsigned int digitalLF, unsigned int digitalLB, unsigned int digitalRF, unsigned int digitalRB)
-    :lf(digitalLF), lb(digitalLB), rf(digitalRF), rb(digitalRB), PWML(0, 0), PWMR(0, 1), directionLF(false), directionLB(false), directionRF(false), directionRB(false), speedL(0), speedR(0){
-    chip = gpiod_chip_open("/dev/gpiochip0");
-    if (!chip) {
-        std::cerr << "Failed to open gpiochip0" << std::endl;
-        return;
-    }
-
+MotorDriver::MotorDriver(gpiod_chip *chip, unsigned int digitalLF, unsigned int digitalLB, unsigned int digitalRF, unsigned int digitalRB)
+    :chip(chip), lf(digitalLF), lb(digitalLB), rf(digitalRF), rb(digitalRB), PWML(0, 0), PWMR(0, 1), directionLF(false), directionLB(false), directionRF(false), directionRB(false), speedL(0), speedR(0){
     unsigned int offsets[] = { lf, lb, rf, rb };
 
     gpiod_line_settings* settings = gpiod_line_settings_new();
@@ -67,8 +61,6 @@ void MotorDriver::setSpeedR(int speed_r) {
 MotorDriver::~MotorDriver() {
     if (request)
         gpiod_line_request_release(request);
-    if (chip)
-        gpiod_chip_close(chip);
 }
 
 void MotorDriver::startMotor() {

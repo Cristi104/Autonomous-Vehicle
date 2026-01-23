@@ -11,6 +11,7 @@
 class MotorDriver {
 public:
     MotorDriver(
+        gpiod_chip *chip,
         unsigned int digitalLF, unsigned int digitalLB,
         unsigned int digitalRF, unsigned int digitalRB
         );

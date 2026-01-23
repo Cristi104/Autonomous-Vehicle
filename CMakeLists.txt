@@ -9,6 +9,8 @@ add_executable(licenta main.cpp
         src/motorDriver.cpp
         Include/motorDriver.h
         src/PWM.cpp
-        Include/PWM.h)
+        Include/PWM.h
+        src/ultrasonicDistance.cpp
+        Include/ultrasonicDistance.h)
 
 target_link_libraries(licenta PRIVATE gpiod)
