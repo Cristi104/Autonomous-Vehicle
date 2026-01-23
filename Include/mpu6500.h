@@ -11,15 +11,20 @@
 class MPU6500 {
 public:
     MPU6500();
-    ~MPU6500() = default;
-    std::array<float, 3> readAccelerometer() const;
-    std::array<float, 3> readGyro() const;
+    ~MPU6500();
+    [[nodiscard]] std::array<float, 3> readAccelerometer() const;
+    [[nodiscard]] std::array<float, 3> readGyro() const;
 
-    void test() const;
+    void test();
+    void update();
+    void debugLog() const;
+    std::array<float, 3> speed;
+    std::array<float, 3> angle;
 private:
     int MPUFD;
     std::array<float, 3> accelOffset;
     std::array<float, 3> gyroOffset;
+    std::array<float, 3> position;
 
     void writeRegister(uint8_t reg, uint8_t value) const;
     [[nodiscard]] uint8_t readRegister(uint8_t reg) const;
