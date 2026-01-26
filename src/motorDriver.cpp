@@ -8,9 +8,11 @@
 #include <cstring>
 #include <iostream>
 
+#define MIN_DUTY_CYCLE 0
+#define MAX_DUTY_CYCLE 100000
 
 MotorDriver::MotorDriver(gpiod::chip &chip, unsigned int digitalLF, unsigned int digitalLB, unsigned int digitalRF, unsigned int digitalRB)
-    :chip(chip), lf(digitalLF), lb(digitalLB), rf(digitalRF), rb(digitalRB), PWML(0, 0), PWMR(0, 1), directionLF(false), directionLB(false), directionRF(false), directionRB(false), speedL(0), speedR(0){
+    :chip(chip), lf(digitalLF), lb(digitalLB), rf(digitalRF), rb(digitalRB), PWML(0, 0), PWMR(0, 1), bias(0.0), directionLF(false), directionLB(false), directionRF(false), directionRB(false), speedL(0), speedR(0){
     gpiod::line::offsets offsets;
     offsets.push_back(lf);
     offsets.push_back(lb);
@@ -51,10 +53,20 @@ void MotorDriver::setDirectionRB(bool direction_rb) {
 
 void MotorDriver::setSpeedL(int speed_l) {
     speedL = speed_l;
+    speedL *= 1000;
+    speedL *= 1.0f - bias;
+    speedL = std::max(std::min(speedL, MAX_DUTY_CYCLE), MIN_DUTY_CYCLE);
 }
 
 void MotorDriver::setSpeedR(int speed_r) {
     speedR = speed_r;
+    speedR *= 1000;
+    speedR *= 1.0f + bias;
+    speedR = std::max(std::min(speedR, MAX_DUTY_CYCLE), MIN_DUTY_CYCLE);
+}
+
+void MotorDriver::setBias(float bias) {
+    this->bias = bias;
 }
 
 void MotorDriver::startMotor() {
@@ -78,15 +90,15 @@ void MotorDriver::stopMotor() {
 }
 
 void MotorDriver::update() {
-    if (directionLF || directionLB) {
-        PWML.setDuty(speedL * 1000);
+    if (!(directionLF || directionLB)) {
+        PWML.setDuty(speedL);
     } else {
-        PWML.setDuty((100 - speedL) * 1000);
+        PWML.setDuty(MAX_DUTY_CYCLE - speedL);
     }
-    if (directionRF || directionRB) {
-        PWMR.setDuty(speedR * 1000);
+    if (!(directionRF || directionRB)) {
+        PWMR.setDuty(speedR);
     } else {
-        PWMR.setDuty((100 - speedR) * 1000);
+        PWMR.setDuty(MAX_DUTY_CYCLE - speedR);
     }
     request->set_value(lf, boolToGpiod(directionLF));
     request->set_value(lb, boolToGpiod(directionLB));

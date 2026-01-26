@@ -17,6 +17,7 @@ public:
         );
     void setDirectionLF(bool direction_lf);
     void setDirectionLB(bool direction_lb);
+    void setBias(float bias);
     void setDirectionRF(bool direction_rf);
     void setDirectionRB(bool direction_rb);
     void setSpeedL(int speed_l);
@@ -29,6 +30,7 @@ private:
     gpiod::chip &chip;
     std::optional<gpiod::line_request> request;
     unsigned int lf, lb, rf, rb;
+    float bias;
     bool directionLF, directionLB, directionRF, directionRB;
     int speedL, speedR;
     void update();

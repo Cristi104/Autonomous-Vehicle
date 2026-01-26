@@ -23,22 +23,25 @@ int main() {
     // pwmr.enable(true)
     gpiod::chip chip(std::filesystem::path("/dev/gpiochip0"));
 
-    UltrasonicDistance ultrasonic(chip, 8, 7);
-    for (int i=0; i<10; i++) {
-        ultrasonic.ping();
-        while (!ultrasonic.update());
-        std::cout << ultrasonic.getDistance() << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
+    // UltrasonicDistance ultrasonic(chip, 8, 7);
+    // for (int i=0; i<10; i++) {
+    //     ultrasonic.ping();
+    //     while (!ultrasonic.update());
+    //     std::cout << ultrasonic.getDistance() << std::endl;
+    //     std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    // }
 
-    // MotorDriver driver(chip, 20, 16, 26, 19);
-    // driver.setDirectionLF(true);
-    // driver.setDirectionRF(true);
-    // driver.setSpeedL(50);
-    // driver.setSpeedR(50);
-    // driver.startMotor();
-    // std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-    // driver.stopMotor();
+    MotorDriver driver(chip, 20, 16, 26, 19);
+    driver.setBias(-0.11);
+    driver.setDirectionLF(true);
+    driver.setDirectionRF(true);
+    driver.setDirectionLB(true);
+    driver.setDirectionRB(true);
+    driver.setSpeedL(90);
+    driver.setSpeedR(90);
+    driver.startMotor();
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    driver.stopMotor();
     // pwml.enable(false);
     // pwmr.enable(false);
 }
