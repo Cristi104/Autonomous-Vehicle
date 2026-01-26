@@ -10,6 +10,11 @@
 class PWM {
 public:
     PWM(int chip, int channel);
+    PWM(const PWM &other) = delete;
+    PWM &operator=(const PWM &other) = delete;
+    // TODO: build actual move constructor
+    PWM(PWM &&other) = delete;
+    PWM &operator=(PWM &&other) = delete;
     ~PWM();
 
     void setPeriod(int period_ns);

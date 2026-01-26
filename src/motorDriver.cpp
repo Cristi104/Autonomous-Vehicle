@@ -9,29 +9,28 @@
 #include <iostream>
 
 
-MotorDriver::MotorDriver(gpiod_chip *chip, unsigned int digitalLF, unsigned int digitalLB, unsigned int digitalRF, unsigned int digitalRB)
+MotorDriver::MotorDriver(gpiod::chip &chip, unsigned int digitalLF, unsigned int digitalLB, unsigned int digitalRF, unsigned int digitalRB)
     :chip(chip), lf(digitalLF), lb(digitalLB), rf(digitalRF), rb(digitalRB), PWML(0, 0), PWMR(0, 1), directionLF(false), directionLB(false), directionRF(false), directionRB(false), speedL(0), speedR(0){
-    unsigned int offsets[] = { lf, lb, rf, rb };
+    gpiod::line::offsets offsets;
+    offsets.push_back(lf);
+    offsets.push_back(lb);
+    offsets.push_back(rf);
+    offsets.push_back(rb);
 
-    gpiod_line_settings* settings = gpiod_line_settings_new();
-    gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_OUTPUT);
-    gpiod_line_settings_set_output_value(settings, GPIOD_LINE_VALUE_INACTIVE);
+    gpiod::line_settings settings;
+    settings.set_direction(gpiod::line::direction::OUTPUT);
+    settings.set_output_value(gpiod::line::value::INACTIVE);
 
-    gpiod_line_config* config = gpiod_line_config_new();
-    gpiod_line_config_add_line_settings(config, offsets, 4, settings);
+    gpiod::line_config config;
+    config.add_line_settings(offsets, settings);
 
-    gpiod_request_config* req_cfg = gpiod_request_config_new();
-    gpiod_request_config_set_consumer(req_cfg, "MotorDriver");
+    gpiod::request_config req_cfg;
+    req_cfg.set_consumer("MotorDriver");
+    gpiod::request_builder builder = chip.prepare_request();
+    builder.set_request_config(req_cfg);
+    builder.set_line_config(config);
 
-    request = gpiod_chip_request_lines(chip, req_cfg, config);
-
-    if (!request) {
-        std::cerr << "Failed to request GPIO lines" << std::endl;
-    }
-
-    gpiod_line_settings_free(settings);
-    gpiod_line_config_free(config);
-    gpiod_request_config_free(req_cfg);
+    request = builder.do_request();
 }
 
 void MotorDriver::setDirectionLF(bool direction_lf) {
@@ -58,16 +57,11 @@ void MotorDriver::setSpeedR(int speed_r) {
     speedR = speed_r;
 }
 
-MotorDriver::~MotorDriver() {
-    if (request)
-        gpiod_line_request_release(request);
-}
-
 void MotorDriver::startMotor() {
-    gpiod_line_request_set_value(request, lf, boolToGpiod(directionLF));
-    gpiod_line_request_set_value(request, lb, boolToGpiod(directionLB));
-    gpiod_line_request_set_value(request, rf, boolToGpiod(directionRF));
-    gpiod_line_request_set_value(request, rb, boolToGpiod(directionRB));
+    request->set_value(lf, boolToGpiod(directionLF));
+    request->set_value(lb, boolToGpiod(directionLB));
+    request->set_value(rf, boolToGpiod(directionRF));
+    request->set_value(rb, boolToGpiod(directionRB));
     update();
     PWML.enable(true);
     PWMR.enable(true);
@@ -77,10 +71,10 @@ void MotorDriver::stopMotor() {
     PWML.enable(false);
     PWMR.enable(false);
 
-    gpiod_line_request_set_value(request, lf, boolToGpiod(false));
-    gpiod_line_request_set_value(request, lb, boolToGpiod(false));
-    gpiod_line_request_set_value(request, rf, boolToGpiod(false));
-    gpiod_line_request_set_value(request, rb, boolToGpiod(false));
+    request->set_value(lf, boolToGpiod(false));
+    request->set_value(lb, boolToGpiod(false));
+    request->set_value(rf, boolToGpiod(false));
+    request->set_value(rb, boolToGpiod(false));
 }
 
 void MotorDriver::update() {
@@ -94,15 +88,15 @@ void MotorDriver::update() {
     } else {
         PWMR.setDuty((100 - speedR) * 1000);
     }
-    gpiod_line_request_set_value(request, lf, boolToGpiod(directionLF));
-    gpiod_line_request_set_value(request, lb, boolToGpiod(directionLB));
-    gpiod_line_request_set_value(request, rf, boolToGpiod(directionRF));
-    gpiod_line_request_set_value(request, rb, boolToGpiod(directionRB));
+    request->set_value(lf, boolToGpiod(directionLF));
+    request->set_value(lb, boolToGpiod(directionLB));
+    request->set_value(rf, boolToGpiod(directionRF));
+    request->set_value(rb, boolToGpiod(directionRB));
 }
 
-gpiod_line_value MotorDriver::boolToGpiod(bool value) {
+gpiod::line::value MotorDriver::boolToGpiod(bool value) {
     if (value) {
-        return GPIOD_LINE_VALUE_ACTIVE;
+        return gpiod::line::value::ACTIVE;
     }
-    return GPIOD_LINE_VALUE_INACTIVE;
+    return gpiod::line::value::INACTIVE;
 }

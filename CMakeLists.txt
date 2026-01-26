@@ -13,4 +13,4 @@ add_executable(licenta main.cpp
         src/ultrasonicDistance.cpp
         Include/ultrasonicDistance.h)
 
-target_link_libraries(licenta PRIVATE gpiod)
+target_link_libraries(licenta PRIVATE gpiodcxx)

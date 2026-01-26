@@ -4,14 +4,14 @@
 
 #ifndef LICENTA_MOTORDRIVER_H
 #define LICENTA_MOTORDRIVER_H
+#include <gpiod.hpp>
 #include "PWM.h"
 
-#include "gpiod.h"
 
 class MotorDriver {
 public:
     MotorDriver(
-        gpiod_chip *chip,
+        gpiod::chip &chip,
         unsigned int digitalLF, unsigned int digitalLB,
         unsigned int digitalRF, unsigned int digitalRB
         );
@@ -21,18 +21,18 @@ public:
     void setDirectionRB(bool direction_rb);
     void setSpeedL(int speed_l);
     void setSpeedR(int speed_r);
-    ~MotorDriver();
+    ~MotorDriver() = default;
     void startMotor();
     void stopMotor();
 
 private:
-    gpiod_chip *chip;
-    gpiod_line_request* request;
+    gpiod::chip &chip;
+    std::optional<gpiod::line_request> request;
     unsigned int lf, lb, rf, rb;
     bool directionLF, directionLB, directionRF, directionRB;
     int speedL, speedR;
     void update();
-    static gpiod_line_value boolToGpiod(bool value);
+    static gpiod::line::value boolToGpiod(bool value);
     PWM PWML, PWMR;
 };
 

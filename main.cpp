@@ -8,6 +8,7 @@
 #include "Include/mpu6500.h"
 #include "Include/motorDriver.h"
 #include "Include/ultrasonicDistance.h"
+#include <gpiod.hpp>
 
 
 int main() {
@@ -19,19 +20,15 @@ int main() {
     // pwml.setDuty(25000);
     // pwmr.setDuty(50000);
     // pwml.enable(true);
-    // pwmr.enable(true);
-    gpiod_chip *chip = gpiod_chip_open("/dev/gpiochip0");
-    if (!chip) {
-        std::cerr << "Failed to open gpiochip0" << std::endl;
-        return 1;
-    }
+    // pwmr.enable(true)
+    gpiod::chip chip(std::filesystem::path("/dev/gpiochip0"));
 
     UltrasonicDistance ultrasonic(chip, 8, 7);
     for (int i=0; i<10; i++) {
         ultrasonic.ping();
         while (!ultrasonic.update());
         std::cout << ultrasonic.getDistance() << std::endl;
-        // std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     // MotorDriver driver(chip, 20, 16, 26, 19);
@@ -44,8 +41,6 @@ int main() {
     // driver.stopMotor();
     // pwml.enable(false);
     // pwmr.enable(false);
-    if (chip)
-        gpiod_chip_close(chip);
 }
 
 // int main() {

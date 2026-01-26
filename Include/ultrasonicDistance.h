@@ -5,20 +5,20 @@
 #ifndef LICENTA_ULTRASONICDISTANCE_H
 #define LICENTA_ULTRASONICDISTANCE_H
 
-#include "gpiod.h"
+#include <gpiod.hpp>
 
 class UltrasonicDistance {
 public:
-    UltrasonicDistance(gpiod_chip *chip, unsigned int trig, unsigned int echo);
+    UltrasonicDistance(gpiod::chip &chip, unsigned int trig, unsigned int echo);
     void ping();
     bool update();
     float getDistance();
-    ~UltrasonicDistance();
+    ~UltrasonicDistance() = default;
 
 private:
-    gpiod_chip *chip;
-    gpiod_line_request* request;
-    gpiod_edge_event_buffer *event;
+    gpiod::chip &chip;
+    std::optional<gpiod::line_request> request;
+    gpiod::edge_event_buffer event;
     unsigned int trig;
     unsigned int echo;
     float distance;

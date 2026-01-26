@@ -7,49 +7,49 @@
 #include <chrono>
 #include <unistd.h>
 
-UltrasonicDistance::UltrasonicDistance(gpiod_chip *chip, unsigned int trig, unsigned int echo)
-    :chip(chip), trig(trig), echo(echo), distance(0){
-    gpiod_line_settings* outSettings = gpiod_line_settings_new();
-    gpiod_line_settings_set_direction(outSettings, GPIOD_LINE_DIRECTION_OUTPUT);
-    gpiod_line_settings_set_output_value(outSettings, GPIOD_LINE_VALUE_INACTIVE);
-    gpiod_line_settings* inSettings = gpiod_line_settings_new();
-    gpiod_line_settings_set_direction(inSettings, GPIOD_LINE_DIRECTION_INPUT);
-    gpiod_line_settings_set_edge_detection(inSettings, GPIOD_LINE_EDGE_BOTH);
+UltrasonicDistance::UltrasonicDistance(gpiod::chip &chip, unsigned int trig, unsigned int echo)
+    : chip(chip), trig(trig), echo(echo), distance(0), event(1) {
+    gpiod::line_settings outSettings;
+    outSettings.set_direction(gpiod::line::direction::OUTPUT);
+    outSettings.set_output_value(gpiod::line::value::INACTIVE);
+    gpiod::line_settings inSettings;
+    inSettings.set_direction(gpiod::line::direction::INPUT);
+    inSettings.set_edge_detection(gpiod::line::edge::BOTH);
 
-    gpiod_line_config* config = gpiod_line_config_new();
-    gpiod_line_config_add_line_settings(config, &trig, 1, outSettings);
-    gpiod_line_config_add_line_settings(config, &echo, 1, inSettings);
+    gpiod::line_config config;
+    config.add_line_settings(trig, outSettings);
+    config.add_line_settings(echo, inSettings);
 
-    gpiod_request_config* req_cfg = gpiod_request_config_new();
-    gpiod_request_config_set_consumer(req_cfg, "UltrasoincDistance");
+    gpiod::request_config req_cfg;
+    req_cfg.set_consumer("UltrasoincDistance");
 
-    request = gpiod_chip_request_lines(chip, req_cfg, config);
-
-    event = gpiod_edge_event_buffer_new(1);
+    gpiod::request_builder builder = chip.prepare_request();
+    builder.set_request_config(req_cfg);
+    builder.set_line_config(config);
+    request = builder.do_request();
 }
 
 void UltrasonicDistance::ping() {
-    gpiod_line_request_set_value(request, trig, GPIOD_LINE_VALUE_ACTIVE);
+    request->set_value(trig, gpiod::line::value::ACTIVE);
     usleep(10);
-    gpiod_line_request_set_value(request, trig, GPIOD_LINE_VALUE_INACTIVE);
+    request->set_value(trig, gpiod::line::value::INACTIVE);
 }
 
 bool UltrasonicDistance::update() {
-    bool available = gpiod_line_request_wait_edge_events(request, 0);
+    bool available = request->wait_edge_events(std::chrono::nanoseconds::zero());
     if (!available) {
         return false;
     }
-    int ret = gpiod_line_request_read_edge_events(request, event, 1);
-    if (ret <= 0)
+    int ret = request->read_edge_events(event);
+    if (ret != 1)
         return false;
 
     static long startTime = 0;
-    gpiod_edge_event_type type = gpiod_edge_event_get_event_type(gpiod_edge_event_buffer_get_event(event, 0));
-    if (type == GPIOD_EDGE_EVENT_RISING_EDGE) {
-        startTime = gpiod_edge_event_get_timestamp_ns(gpiod_edge_event_buffer_get_event(event, 0));
+    if (event.begin()[0].type() == gpiod::edge_event::event_type::RISING_EDGE) {
+        startTime = event.begin()[0].timestamp_ns();
         return false;
-    } else if (type == GPIOD_EDGE_EVENT_FALLING_EDGE) {
-        long endTime = gpiod_edge_event_get_timestamp_ns(gpiod_edge_event_buffer_get_event(event, 0));
+    } else if (event.begin()[0].type() == gpiod::edge_event::event_type::FALLING_EDGE) {
+        long endTime = event.begin()[0].timestamp_ns();
         long deltaTime = endTime - startTime;
         distance = deltaTime * 0.034 / 2 / 1000;
         return true;
@@ -60,12 +60,3 @@ bool UltrasonicDistance::update() {
 float UltrasonicDistance::getDistance() {
     return distance;
 }
-
-UltrasonicDistance::~UltrasonicDistance() {
-    if (request)
-        gpiod_line_request_release(request);
-    if (event)
-        gpiod_edge_event_buffer_free(event);
-}
-
-

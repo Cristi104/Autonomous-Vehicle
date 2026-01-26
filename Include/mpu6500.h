@@ -11,6 +11,10 @@
 class MPU6500 {
 public:
     MPU6500();
+    MPU6500(const MPU6500 &other) = delete;
+    MPU6500 &operator=(const MPU6500 &other) = delete;
+    MPU6500(MPU6500 &&other) = delete;
+    MPU6500 &operator=(MPU6500 &&other) = delete;
     ~MPU6500();
     [[nodiscard]] std::array<float, 3> readAccelerometer() const;
     [[nodiscard]] std::array<float, 3> readGyro() const;
