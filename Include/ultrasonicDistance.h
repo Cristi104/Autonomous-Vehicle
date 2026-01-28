@@ -9,19 +9,23 @@
 
 class UltrasonicDistance {
 public:
-    UltrasonicDistance(gpiod::chip &chip, unsigned int trig, unsigned int echo);
+    static UltrasonicDistance *Instance();
+    static void ResetInstance();
     void ping();
     bool update();
     float getDistance();
     ~UltrasonicDistance() = default;
 
 private:
+    UltrasonicDistance(gpiod::chip &chip, unsigned int trig, unsigned int echo);
     gpiod::chip &chip;
     std::optional<gpiod::line_request> request;
     gpiod::edge_event_buffer event;
     unsigned int trig;
     unsigned int echo;
     float distance;
+
+    static UltrasonicDistance *instance;
 };
 
 

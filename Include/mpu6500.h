@@ -10,7 +10,8 @@
 
 class MPU6500 {
 public:
-    MPU6500();
+    static MPU6500 *Instance();
+    static void ResetInstance();
     MPU6500(const MPU6500 &other) = delete;
     MPU6500 &operator=(const MPU6500 &other) = delete;
     MPU6500(MPU6500 &&other) = delete;
@@ -25,6 +26,7 @@ public:
     std::array<float, 3> speed;
     std::array<float, 3> angle;
 private:
+    MPU6500();
     int MPUFD;
     std::array<float, 3> accelOffset;
     std::array<float, 3> gyroOffset;
@@ -34,6 +36,8 @@ private:
     [[nodiscard]] uint8_t readRegister(uint8_t reg) const;
     [[nodiscard]] std::array<float, 3> readRawAccelerometer() const;
     [[nodiscard]] std::array<float, 3> readRawGyro() const;
+
+    static MPU6500 *instance;
 };
 
 

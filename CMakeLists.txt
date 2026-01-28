@@ -11,6 +11,10 @@ add_executable(licenta main.cpp
         src/PWM.cpp
         Include/PWM.h
         src/ultrasonicDistance.cpp
-        Include/ultrasonicDistance.h)
+        Include/ultrasonicDistance.h
+        src/controller.cpp
+        Include/controller.h
+        src/gpioChip.cpp
+        Include/gpioChip.h)
 
 target_link_libraries(licenta PRIVATE gpiodcxx)

@@ -7,8 +7,10 @@
 #include <chrono>
 #include <unistd.h>
 
+#include "../Include/gpioChip.h"
+
 UltrasonicDistance::UltrasonicDistance(gpiod::chip &chip, unsigned int trig, unsigned int echo)
-    : chip(chip), trig(trig), echo(echo), distance(0), event(1) {
+    : chip(chip), trig(trig), echo(echo), distance(1000), event(1) {
     gpiod::line_settings outSettings;
     outSettings.set_direction(gpiod::line::direction::OUTPUT);
     outSettings.set_output_value(gpiod::line::value::INACTIVE);
@@ -27,6 +29,19 @@ UltrasonicDistance::UltrasonicDistance(gpiod::chip &chip, unsigned int trig, uns
     builder.set_request_config(req_cfg);
     builder.set_line_config(config);
     request = builder.do_request();
+}
+
+UltrasonicDistance * UltrasonicDistance::instance = nullptr;
+UltrasonicDistance * UltrasonicDistance::Instance() {
+    if (instance == nullptr) {
+        instance = new UltrasonicDistance(GpioChip::Instance(), 8, 7);
+    }
+    return instance;
+}
+
+void UltrasonicDistance::ResetInstance() {
+    delete instance;
+    instance = nullptr;
 }
 
 void UltrasonicDistance::ping() {

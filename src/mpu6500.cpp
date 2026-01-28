@@ -125,6 +125,19 @@ MPU6500::MPU6500() :  accelOffset({0, 0, 0}), gyroOffset({0, 0, 0}), speed({0, 0
     gyroOffset[2] /= samples;
 }
 
+MPU6500 * MPU6500::instance = nullptr;
+MPU6500 * MPU6500::Instance() {
+    if (instance == nullptr) {
+        instance = new MPU6500();
+    }
+    return instance;
+}
+
+void MPU6500::ResetInstance() {
+    delete instance;
+    instance = nullptr;
+}
+
 MPU6500::~MPU6500() {
     close(MPUFD);
 }

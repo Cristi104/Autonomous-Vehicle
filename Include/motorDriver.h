@@ -10,11 +10,12 @@
 
 class MotorDriver {
 public:
-    MotorDriver(
-        gpiod::chip &chip,
-        unsigned int digitalLF, unsigned int digitalLB,
-        unsigned int digitalRF, unsigned int digitalRB
-        );
+    static MotorDriver *Instance();
+    static void ResetInstance();
+    MotorDriver(const MotorDriver &other) = delete;
+    MotorDriver(MotorDriver &&other) noexcept = delete;
+    MotorDriver & operator=(const MotorDriver &other) = delete;
+    MotorDriver & operator=(MotorDriver &&other) noexcept = delete;
     void setDirectionLF(bool direction_lf);
     void setDirectionLB(bool direction_lb);
     void setBias(float bias);
@@ -27,15 +28,31 @@ public:
     void stopMotor();
 
 private:
+    MotorDriver(
+        gpiod::chip &chip,
+        unsigned int digitalLF, unsigned int digitalLB,
+        unsigned int digitalRF, unsigned int digitalRB
+        );
+
+    void update();
+
     gpiod::chip &chip;
     std::optional<gpiod::line_request> request;
     unsigned int lf, lb, rf, rb;
     float bias;
     bool directionLF, directionLB, directionRF, directionRB;
     int speedL, speedR;
-    void update();
-    static gpiod::line::value boolToGpiod(bool value);
+    bool isOn;
+
+public:
+    [[nodiscard]] bool is_on() const;
+
+private:
     PWM PWML, PWMR;
+
+    static gpiod::line::value boolToGpiod(bool value);
+
+    static MotorDriver *instance;
 };
 
 
