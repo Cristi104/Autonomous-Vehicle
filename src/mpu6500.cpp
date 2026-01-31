@@ -114,7 +114,7 @@ MPU6500::MPU6500() :  accelOffset({0, 0, 0}), gyroOffset({0, 0, 0}), speed({0, 0
         gyroOffset[0] += gyro[0];
         gyroOffset[1] += gyro[1];
         gyroOffset[2] += gyro[2];
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(25));
     }
     accelOffset[0] /= samples;
     accelOffset[1] /= samples;
@@ -198,18 +198,18 @@ void MPU6500::update() {
 
     // float cx = std::cos(angle[0]), sx = std::sin(angle[0]);
     // float cy = std::cos(angle[1]), sy = std::sin(angle[1]);
-    float cz = std::cos(angle[2]), sz = std::sin(angle[2]);
+    // float cz = std::cos(angle[2]), sz = std::sin(angle[2]);
     // float M[3][3] = {
     //     {cy * cz, cy * sz, -sy},
     //     {sx * sy * cz - cx * sz, sx * sy * sz + cx * cz, sx * cy},
     //     {cx * sy * cz + sx * sz, cx * sy * sz - sx * cz, cx * cy}
     // };
-
-    float M[3][3] = {
-        {cz, -sz, 0},
-        {sz, cz, 0},
-        {0, 0, 1}
-    };
+    //
+    // float M[3][3] = {
+    //     {cz, -sz, 0},
+    //     {sz, cz, 0},
+    //     {0, 0, 1}
+    // };
 
     std::array<float, 3> rotatedAcceleration = acceleration;
     // std::array<float, 3> rotatedAcceleration = {
@@ -223,30 +223,30 @@ void MPU6500::update() {
         }
     }
 
-    float accelMag = sqrt(rotatedAcceleration[0] * rotatedAcceleration[0] + rotatedAcceleration[1] * rotatedAcceleration[1] + rotatedAcceleration[2] * rotatedAcceleration[2]);
-    float gyroMag  = sqrt(gyro[0] * gyro[0] + gyro[1] * gyro[1] + gyro[2] * gyro[2]);
-
-    bool stationary =
-        std::abs(accelMag) < 0.1f &&
-        gyroMag < 0.02f;
-
+    // float accelMag = sqrt(rotatedAcceleration[0] * rotatedAcceleration[0] + rotatedAcceleration[1] * rotatedAcceleration[1] + rotatedAcceleration[2] * rotatedAcceleration[2]);
+    // float gyroMag  = sqrt(gyro[0] * gyro[0] + gyro[1] * gyro[1] + gyro[2] * gyro[2]);
+    //
+    // bool stationary =
+    //     std::abs(accelMag) < 0.1f &&
+    //     gyroMag < 0.02f;
+    //
     // std::cout << stationary << ' ' << accelMag << ' ' << gyroMag << "acceleration: " << acceleration[0] << " " << acceleration[1] << " " << acceleration[2] << " gyro: " << gyro[0] << " " << gyro[1] << " " << gyro[2] << std::endl;
-    if (stationary) {
-        speed = {0, 0, 0};
-    }
+    // if (stationary) {
+    //     speed = {0, 0, 0};
+    // }
 
     float maxSpeed = 4.0f;
     for (int i = 0; i < 3; i++) {
         speed[i] = std::clamp(speed[i], -maxSpeed, maxSpeed);
     }
 
-    position[0] += speed[0] * t;
-    position[1] += speed[1] * t;
-    position[2] += speed[2] * t;
-
     speed[0] += rotatedAcceleration[0] * t;
     speed[1] += rotatedAcceleration[1] * t;
     speed[2] += rotatedAcceleration[2] * t;
+
+    speed[0] *= 1 - 0.3 * t;
+    speed[1] *= 1 - 0.3 * t;
+    speed[2] *= 1 - 0.3 * t;
 }
 
 void MPU6500::debugLog() const {

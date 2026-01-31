@@ -10,8 +10,9 @@
 #include "mpu6500.h"
 #include "ultrasonicDistance.h"
 
+
 #define DISTANCE_CHECK_INTERVAL std::chrono::milliseconds(150)
-#define MPU_CHECK_INTERVAL std::chrono::milliseconds(50)
+#define MPU_CHECK_INTERVAL std::chrono::milliseconds(25)
 
 class Controller {
 public:
@@ -19,6 +20,7 @@ public:
     void turnoff();
     void turn(float deg);
     void forward(int cm);
+    void backward(int cm);
     ~Controller();
 
 private:

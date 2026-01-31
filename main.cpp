@@ -12,15 +12,27 @@
 #include "Include/motorDriver.h"
 #include "Include/ultrasonicDistance.h"
 
+#include "pybind11/pybind11.h"
+
+namespace py = pybind11;
+
+PYBIND11_MODULE(controller, m, py::mod_gil_not_used()) {
+    py::class_<Controller>(m, "Controller")
+        .def(py::init())
+        .def("turnoff", &Controller::turnoff)
+        .def("turn", &Controller::turn)
+        .def("forward", &Controller::forward)
+        .def("backward", &Controller::backward);
+}
 
 int main() {
-    UltrasonicDistance::Instance();
-    MPU6500::Instance();
-    MotorDriver::Instance();
     Controller controller;
-    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-    controller.forward(10);
-
+    // std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+    controller.forward(20);
+    // controller.turn(90);
+    // controller.backward(20);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+    // MPU6500::Instance()->test();
     // MotorDriver::Instance()->setBias(-0.11);
     // MotorDriver::Instance()->setDirectionLF(true);
     // MotorDriver::Instance()->setDirectionRF(true);
@@ -31,10 +43,8 @@ int main() {
     // MotorDriver::Instance()->startMotor();
     // MotorDriver::Instance()->setSpeedL(30);
     // MotorDriver::Instance()->setSpeedR(30);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
     // MotorDriver::Instance()->stopMotor();
     // MPU6500 mpu;
-    // mpu.test();
     // PWM pwml(0, 0), pwmr(0, 1);
     // pwml.setPeriod(100000);
     // pwmr.setPeriod(100000);

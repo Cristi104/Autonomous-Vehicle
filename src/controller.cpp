@@ -10,10 +10,12 @@
 
 #include "../Include/gpioChip.h"
 
-Controller::Controller() :controlThread(&Controller::controlThreadMain, this), action(command::NONE), actionArgument(0), delta(0), timeSinceMPUUpdate(1000), timeSinceDistanceUpdate(1000) {
-    MPU6500::Instance()->update();
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    MPU6500::Instance()->update();
+Controller::Controller() :action(command::NONE), actionArgument(0), delta(0), timeSinceMPUUpdate(1000), timeSinceDistanceUpdate(1000) {
+    UltrasonicDistance::Instance();
+    MotorDriver::Instance()->setBias(-0.13);
+    MPU6500::Instance();
+
+    controlThread = std::thread(&Controller::controlThreadMain, this);
 }
 
 void Controller::turnoff() {
@@ -25,15 +27,22 @@ void Controller::turnoff() {
 void Controller::turn(float deg) {
     actionMutex.lock();
     action = command::TURN;
-    actionMutex.unlock();
     actionArgument.deg = deg;
+    actionMutex.unlock();
 }
 
 void Controller::forward(int cm) {
     actionMutex.lock();
     action = command::FORWARD;
-    actionMutex.unlock();
     actionArgument.cm = cm;
+    actionMutex.unlock();
+}
+
+void Controller::backward(int cm) {
+    actionMutex.lock();
+    action = command::BACKWARD;
+    actionArgument.cm = cm;
+    actionMutex.unlock();
 }
 
 Controller::~Controller() {
@@ -67,6 +76,8 @@ void Controller::controlThreadMain() {
 
         actionMutex.lock();
 
+        static float angle = 0;
+        static float distanceTraveled = 0;
         switch (action) {
             case command::NONE:
                 break;
@@ -81,6 +92,7 @@ void Controller::controlThreadMain() {
                 return;
             case command::FORWARD:
                 if (!MotorDriver::Instance()->is_on()) {
+                    distanceTraveled = 0;
                     MotorDriver::Instance()->setSpeedL(40);
                     MotorDriver::Instance()->setSpeedR(40);
                     MotorDriver::Instance()->setDirectionLF(true);
@@ -90,12 +102,64 @@ void Controller::controlThreadMain() {
                     MotorDriver::Instance()->startMotor();
                 }
 
-                if (UltrasonicDistance::Instance()->getDistance() < 10) {
+                distanceTraveled += (delta.count() / 1000000.0f) * -MPU6500::Instance()->speed[0] * 100;
+                std::cout << "[TRAVELED]: " << distanceTraveled << std::endl;
+                if (distanceTraveled > actionArgument.cm - 5) {
+                    MotorDriver::Instance()->stopMotor();
+                    action = command::NONE;
+                }
+
+                if (UltrasonicDistance::Instance()->getDistance() < 15) {
                     MotorDriver::Instance()->stopMotor();
                     action = command::NONE;
                 }
 
                 break;
+            case command::TURN:
+                if (!MotorDriver::Instance()->is_on()) {
+                    angle = MPU6500::Instance()->angle[2]/ 0.01745 ;
+                    if (actionArgument.deg > 0) {
+                        MotorDriver::Instance()->setSpeedL(0);
+                        MotorDriver::Instance()->setSpeedR(50);
+                    } else {
+                        MotorDriver::Instance()->setSpeedL(50);
+                        MotorDriver::Instance()->setSpeedR(0);
+                    }
+                    MotorDriver::Instance()->setDirectionLF(true);
+                    MotorDriver::Instance()->setDirectionRF(true);
+                    MotorDriver::Instance()->setDirectionLB(true);
+                    MotorDriver::Instance()->setDirectionRB(true);
+                    MotorDriver::Instance()->startMotor();
+                }
+                // std::cout << angle << ' ' << MPU6500::Instance()->angle[2] / 0.01745  << ' ' << actionArgument.deg << std::endl;
+
+                if (std::abs(angle - MPU6500::Instance()->angle[2] / 0.01745 ) > std::abs(actionArgument.deg) - 5) {
+                    MotorDriver::Instance()->stopMotor();
+                    action = command::NONE;
+                }
+                break;
+
+            case command::BACKWARD:
+                if (!MotorDriver::Instance()->is_on()) {
+                    distanceTraveled = 0;
+                    MotorDriver::Instance()->setSpeedL(50);
+                    MotorDriver::Instance()->setSpeedR(50);
+                    MotorDriver::Instance()->setDirectionLF(false);
+                    MotorDriver::Instance()->setDirectionRF(false);
+                    MotorDriver::Instance()->setDirectionLB(false);
+                    MotorDriver::Instance()->setDirectionRB(false);
+                    MotorDriver::Instance()->startMotor();
+                }
+
+                distanceTraveled += (delta.count() / 1000000.0f) * MPU6500::Instance()->speed[0] * 100;
+                std::cout << "[TRAVELED]: " << distanceTraveled << std::endl;
+                if (distanceTraveled > actionArgument.cm - 5) {
+                    MotorDriver::Instance()->stopMotor();
+                    action = command::NONE;
+                }
+
+                break;
+
         }
         actionMutex.unlock();
     }

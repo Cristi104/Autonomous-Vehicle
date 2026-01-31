@@ -123,10 +123,12 @@ void MotorDriver::update() {
     } else {
         PWMR.setDuty(MAX_DUTY_CYCLE - speedR);
     }
-    request->set_value(lf, boolToGpiod(directionLF));
-    request->set_value(lb, boolToGpiod(directionLB));
-    request->set_value(rf, boolToGpiod(directionRF));
-    request->set_value(rb, boolToGpiod(directionRB));
+    if (isOn) {
+        request->set_value(lf, boolToGpiod(directionLF));
+        request->set_value(lb, boolToGpiod(directionLB));
+        request->set_value(rf, boolToGpiod(directionRF));
+        request->set_value(rb, boolToGpiod(directionRB));
+    }
 }
 
 bool MotorDriver::is_on() const {
