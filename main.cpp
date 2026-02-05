@@ -15,23 +15,32 @@
 #include "pybind11/pybind11.h"
 
 namespace py = pybind11;
-
 PYBIND11_MODULE(controller, m, py::mod_gil_not_used()) {
     py::class_<Controller>(m, "Controller")
         .def(py::init())
-        .def("turnoff", &Controller::turnoff)
-        .def("turn", &Controller::turn)
-        .def("forward", &Controller::forward)
-        .def("backward", &Controller::backward);
+        .def("startThread", &Controller::startThread)
+        .def("stopThread", &Controller::stopThread)
+        .def("forwardCm", &Controller::forwardCm)
+        .def("forwardWithSpeed", &Controller::forwardWithSpeed)
+        .def("setSpeed", &Controller::setSpeed)
+        .def("turnDeg", &Controller::turnDeg)
+        .def("turnWithSpeed", &Controller::turnWithSpeed)
+        .def("setPID", &Controller::setPID)
+        .def("pid", &Controller::pid);
 }
 
 int main() {
     Controller controller;
+    controller.setSpeed(50);
+    controller.startThread();
     // std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-    controller.forward(20);
+    controller.pid(-0.0);
+    // controller.forwardCm(10);
     // controller.turn(90);
     // controller.backward(20);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    controller.stopThread();
+    // controller.turnoff();
     // MPU6500::Instance()->test();
     // MotorDriver::Instance()->setBias(-0.11);
     // MotorDriver::Instance()->setDirectionLF(true);

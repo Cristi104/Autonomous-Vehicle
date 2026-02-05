@@ -26,6 +26,8 @@ public:
     ~MotorDriver() = default;
     void startMotor();
     void stopMotor();
+    [[nodiscard]] int getSpeedL() const;
+    [[nodiscard]] int getSpeedR() const;
 
 private:
     MotorDriver(
@@ -41,7 +43,8 @@ private:
     unsigned int lf, lb, rf, rb;
     float bias;
     bool directionLF, directionLB, directionRF, directionRB;
-    int speedL, speedR;
+    int dutyL, dutyR, speedL, speedR;
+
     bool isOn;
 
 public:

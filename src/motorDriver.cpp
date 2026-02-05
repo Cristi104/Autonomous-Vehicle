@@ -14,7 +14,8 @@
 #define MAX_DUTY_CYCLE 100000
 
 MotorDriver::MotorDriver(gpiod::chip &chip, unsigned int digitalLF, unsigned int digitalLB, unsigned int digitalRF, unsigned int digitalRB)
-    :isOn(false), chip(chip), lf(digitalLF), lb(digitalLB), rf(digitalRF), rb(digitalRB), PWML(0, 0), PWMR(0, 1), bias(0.0), directionLF(false), directionLB(false), directionRF(false), directionRB(false), speedL(0), speedR(0){
+    :isOn(false), chip(chip), lf(digitalLF), lb(digitalLB), rf(digitalRF), rb(digitalRB), PWML(0, 0), PWMR(0, 1),
+    bias(0.0), directionLF(false), directionLB(false), directionRF(false), directionRB(false), dutyL(0), dutyR(0), speedL(0), speedR(0){
     gpiod::line::offsets offsets;
     offsets.push_back(lf);
     offsets.push_back(lb);
@@ -72,17 +73,19 @@ void MotorDriver::setDirectionRB(bool direction_rb) {
 
 void MotorDriver::setSpeedL(int speed_l) {
     speedL = speed_l;
-    speedL *= 1000;
-    speedL *= 1.0f - bias;
-    speedL = std::max(std::min(speedL, MAX_DUTY_CYCLE), MIN_DUTY_CYCLE);
+    dutyL = speed_l;
+    dutyL *= 1000;
+    dutyL *= 1.0f - bias;
+    dutyL = std::max(std::min(dutyL, MAX_DUTY_CYCLE), MIN_DUTY_CYCLE);
     update();
 }
 
 void MotorDriver::setSpeedR(int speed_r) {
     speedR = speed_r;
-    speedR *= 1000;
-    speedR *= 1.0f + bias;
-    speedR = std::max(std::min(speedR, MAX_DUTY_CYCLE), MIN_DUTY_CYCLE);
+    dutyR = speed_r;
+    dutyR *= 1000;
+    dutyR *= 1.0f + bias;
+    dutyR = std::max(std::min(dutyR, MAX_DUTY_CYCLE), MIN_DUTY_CYCLE);
     update();
 }
 
@@ -114,14 +117,14 @@ void MotorDriver::stopMotor() {
 
 void MotorDriver::update() {
     if (!(directionLF || directionLB)) {
-        PWML.setDuty(speedL);
+        PWML.setDuty(dutyL);
     } else {
-        PWML.setDuty(MAX_DUTY_CYCLE - speedL);
+        PWML.setDuty(MAX_DUTY_CYCLE - dutyL);
     }
     if (!(directionRF || directionRB)) {
-        PWMR.setDuty(speedR);
+        PWMR.setDuty(dutyR);
     } else {
-        PWMR.setDuty(MAX_DUTY_CYCLE - speedR);
+        PWMR.setDuty(MAX_DUTY_CYCLE - dutyR);
     }
     if (isOn) {
         request->set_value(lf, boolToGpiod(directionLF));
@@ -129,6 +132,14 @@ void MotorDriver::update() {
         request->set_value(rf, boolToGpiod(directionRF));
         request->set_value(rb, boolToGpiod(directionRB));
     }
+}
+
+int MotorDriver::getSpeedL() const {
+    return speedL;
+}
+
+int MotorDriver::getSpeedR() const {
+    return speedR;
 }
 
 bool MotorDriver::is_on() const {

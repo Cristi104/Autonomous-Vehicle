@@ -17,29 +17,42 @@
 class Controller {
 public:
     Controller();
-    void turnoff();
-    void turn(float deg);
-    void forward(int cm);
-    void backward(int cm);
+    void startThread();
+    void stopThread();
+    void forwardWithSpeed(int speed);
+    void forwardCm(int cm);
+    void turnWithSpeed(int speed);
+    void turnDeg(float deg);
+    void pid(float steering);
+    void setSpeed(int speed);
+    void setPID(float kp, float ki, float kd, float setpoint);
     ~Controller();
 
 private:
+    void interrupt();
+    std::atomic<bool> running;
+
     enum class command {
         NONE,
-        FORWARD,
-        BACKWARD,
-        TURN,
-        DONE,
-        TURNOFF,
+        FORWARD_CM,
+        FORWARD_SPEED,
+        TURN_DEG,
+        TURN_SPEED,
+        PID,
     };
+    int speed;
+    float kp, ki, kd, setpoint;
 
-    command action;
-    union {
-        int cm;
-        float deg;
-    } actionArgument;
+    std::atomic<uint64_t> interruptToken;
 
     std::mutex actionMutex;
+    command action;
+    int forwardSpeed;
+    int forwardCentimeters;
+    float turnDegrees;
+    int turnSpeed;
+    float pidSteering;
+
     void controlThreadMain();
     std::thread controlThread;
 
@@ -47,7 +60,6 @@ private:
     std::chrono::microseconds delta;
     std::chrono::microseconds timeSinceMPUUpdate;
     std::chrono::microseconds timeSinceDistanceUpdate;
-
 };
 
 

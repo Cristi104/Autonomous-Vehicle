@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Video Stream</title>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const ws = new WebSocket("ws://192.168.1.157:8000/ws/video");
+
+    ws.onmessage = (event) => {
+        const img = new Image();
+        img.src = "data:image/jpeg;base64," + event.data;
+
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+        };
+    };
+</script>
+</body>
+</html>
