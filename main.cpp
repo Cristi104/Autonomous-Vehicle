@@ -26,6 +26,7 @@ PYBIND11_MODULE(controller, m, py::mod_gil_not_used()) {
         .def("turnDeg", &Controller::turnDeg)
         .def("turnWithSpeed", &Controller::turnWithSpeed)
         .def("setPID", &Controller::setPID)
+        .def("setDistanceThresh", &Controller::setDistanceThresh)
         .def("pid", &Controller::pid);
 }
 
@@ -34,8 +35,8 @@ int main() {
     controller.setSpeed(50);
     controller.startThread();
     // std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-    controller.pid(-0.0);
-    // controller.forwardCm(10);
+    // controller.pid(-0.0);
+    controller.forwardCm(10);
     // controller.turn(90);
     // controller.backward(20);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));

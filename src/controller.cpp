@@ -11,7 +11,7 @@
 Controller::Controller()
     :delta(0), timeSinceMPUUpdate(1000), timeSinceDistanceUpdate(1000), running(false), speed(50),
     interruptToken(0), action(command::NONE), forwardCentimeters(0), forwardSpeed(0),
-    turnDegrees(0), turnSpeed(0), pidSteering(0), ki(0), kd(0), kp(1), setpoint(0)
+    turnDegrees(0), turnSpeed(0), pidSteering(0), ki(0), kd(0), kp(1), setpoint(0), distanceThresh(15)
 {
     UltrasonicDistance::Instance();
     MotorDriver::Instance()->setBias(0);
@@ -33,38 +33,33 @@ void Controller::stopThread() {
 }
 
 void Controller::forwardWithSpeed(int speed) {
-    actionMutex.lock();
+    std::lock_guard<std::mutex> lock(actionMutex);
     action = command::FORWARD_SPEED;
     forwardSpeed = speed;
-    actionMutex.unlock();
 }
 
 void Controller::forwardCm(int cm) {
-    actionMutex.lock();
+    std::lock_guard<std::mutex> lock(actionMutex);
     action = command::FORWARD_CM;
     forwardCentimeters = cm;
-    actionMutex.unlock();
 }
 
 void Controller::turnWithSpeed(int speed) {
-    actionMutex.lock();
+    std::lock_guard<std::mutex> lock(actionMutex);
     action = command::TURN_SPEED;
     turnSpeed = speed;
-    actionMutex.unlock();
 }
 
 void Controller::turnDeg(float deg) {
-    actionMutex.lock();
+    std::lock_guard<std::mutex> lock(actionMutex);
     action = command::TURN_DEG;
     turnDegrees = deg;
-    actionMutex.unlock();
 }
 
 void Controller::pid(float steering) {
-    actionMutex.lock();
+    std::lock_guard<std::mutex> lock(actionMutex);
     action = command::PID;
     pidSteering = steering;
-    actionMutex.unlock();
 }
 
 Controller::~Controller() {
@@ -95,6 +90,10 @@ void Controller::setPID(float kp, float ki, float kd, float setpoint) {
     this->kd = kd;
     this->ki = ki;
     this->setpoint = setpoint;
+}
+
+void Controller::setDistanceThresh(int cm) {
+    distanceThresh = std::max(15, cm);
 }
 
 void Controller::controlThreadMain() {
@@ -136,7 +135,7 @@ void Controller::controlThreadMain() {
             observedCancel = currentCancel;
             MotorDriver::Instance()->stopMotor();
 
-            actionMutex.lock();
+            std::lock_guard<std::mutex> lock(actionMutex);
             action = command::NONE;
             angle = 0;
             distanceTraveled = 0;
@@ -144,12 +143,11 @@ void Controller::controlThreadMain() {
             lastSteering = 0;
             integral = 0;
             prev_error = 0;
-            actionMutex.unlock();
 
             continue;
         }
 
-        actionMutex.lock();
+        std::lock_guard<std::mutex> lock(actionMutex);
         switch (action) {
             case command::NONE:
                 break;
@@ -172,7 +170,7 @@ void Controller::controlThreadMain() {
                     action = command::NONE;
                 }
 
-                if (UltrasonicDistance::Instance()->getDistance() < 15 && UltrasonicDistance::Instance()->getDistance() > 1) {
+                if (UltrasonicDistance::Instance()->getDistance() < distanceThresh && UltrasonicDistance::Instance()->getDistance() > 1) {
                     MotorDriver::Instance()->stopMotor();
                     action = command::NONE;
                 }
@@ -197,7 +195,7 @@ void Controller::controlThreadMain() {
                     MotorDriver::Instance()->startMotor();
                 }
 
-                if (UltrasonicDistance::Instance()->getDistance() < 15 && UltrasonicDistance::Instance()->getDistance() > 1) {
+                if (UltrasonicDistance::Instance()->getDistance() < distanceThresh && UltrasonicDistance::Instance()->getDistance() > 1) {
                     MotorDriver::Instance()->stopMotor();
                     action = command::NONE;
                 }
@@ -232,7 +230,7 @@ void Controller::controlThreadMain() {
                     lastSteering = pidSteering;
                 }
 
-                if (UltrasonicDistance::Instance()->getDistance() < 15 && UltrasonicDistance::Instance()->getDistance() > 1) {
+                if (UltrasonicDistance::Instance()->getDistance() < distanceThresh && UltrasonicDistance::Instance()->getDistance() > 1) {
                     MotorDriver::Instance()->stopMotor();
                     action = command::NONE;
                 }
@@ -290,7 +288,6 @@ void Controller::controlThreadMain() {
 
                 break;
         }
-        actionMutex.unlock();
     }
     MotorDriver::Instance()->stopMotor();
     std::cout << "[THREAD EXITED]" << std::endl;

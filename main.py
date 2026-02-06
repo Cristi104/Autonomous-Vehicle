@@ -77,10 +77,12 @@ def run_api():
 
 threading.Thread(target=run_api, daemon=True).start()
 contr = Controller()
-contr.setSpeed(50)
-contr.setPID(0.3, 0.1, 0.1, 0.0)
+contr.setSpeed(70)
+contr.setPID(0.3, 0.1, 0.1, -0.03)
+
+contr.setDistanceThresh(40)
 contr.startThread()
-# time.sleep(5)
+time.sleep(5)
 
 def component_orientation(mask):
     ys, xs = np.where(mask > 0)
@@ -141,8 +143,12 @@ try:
             # cv.rectangle(frame, (0, 480), (20, 0), (255, 255, 255), -1)
             # cv.rectangle(frame, (620, 480), (640, 0), (255, 255, 255), -1)
             # cv.rectangle(frame, (0, 0), (640, 20), (255, 255, 255), -1)
-            # cv.rectangle(frame, (250, 440), (260, 420), (255, 255, 255), -1)
-            # cv.rectangle(frame, (400, 440), (410, 420), (255, 255, 255), -1)
+            # cv.rectangle(frame, (250, 410), (260, 390), (255, 255, 255), -1)
+            # cv.rectangle(frame, (360, 410), (370, 390), (255, 255, 255), -1)
+            cv.rectangle(frame, (250, 440), (260, 420), (255, 255, 255), -1)
+            cv.rectangle(frame, (360, 440), (370, 420), (255, 255, 255), -1)
+            cv.rectangle(frame, (250, 480), (260, 450), (255, 255, 255), -1)
+            cv.rectangle(frame, (360, 480), (370, 450), (255, 255, 255), -1)
             # cv.rectangle(frame, (0, 440), (240, 420), (255, 255, 255), -1)
             # cv.rectangle(frame, (420, 440), (640, 420), (255, 255, 255), -1)
             # # kernel = cv.getStructuringElement(cv.MORPH_RECT, (95, 95))
@@ -152,47 +158,48 @@ try:
 
 
             for i in range(len(centroids)):
-                if stats[i][4] < 70:
-                    continue
+                # if stats[i][4] < 70:
+                #     continue
                 c1 = centroids[i]
                 if not frame[int(c1[1])][int(c1[0])]:
                     continue
                 for j in range(i + 1, len(centroids)):
                     c2 = centroids[j]
-                    if stats[j][4] < 70:
-                        continue
+                    # if stats[j][4] < 70:
+                    #     continue
                     if(math.sqrt((c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2) < 70):
                         cv.line(frame, [int(c1[0]), int(c1[1])], [int(c2[0]), int(c2[1])], (255, 0, 0), 3)
 
 
-            leftPoints = [[340, 480], [300, 470]]
-            rightPoints = [[340, 480], [300, 470]]
-            midPoints = [[320, 480], [320, 470]]
+            leftPoints = [[300, 480], [300, 475]]
+            rightPoints = [[320, 480], [320, 475]]
+            midPoints = [[310, 480], [310, 475]]
             pointInterval = 40
             searchRange = 130
             points = 12
-            angles = [-math.pi/2]
+            angles = []
+            dx = midPoints[-2][0] - midPoints[-1][0]
+            dy = midPoints[-2][1] - midPoints[-1][1]
+            angle = math.atan2(dy, dx) - math.pi
+            angle = min(-math.pi / 4, max(angle, -3 * math.pi / 4))
+            angles.append(angle)
             # print("start")
             for i in range(points):
                 leftPoint = None
                 rightPoint = None
-                if len(angles) == 0:
-                    leftPoint = [320, 470 - pointInterval * i]
-                    rightPoint = [320, 470 - pointInterval * i]
-                else:
+                whitePoint = getFirstWhitePoint(midPoints[-1][0], midPoints[-1][1], angles[-1], pointInterval)
+                if whitePoint[0] == -1:
                     leftPoint = getPointAlongLine(midPoints[-1][0], midPoints[-1][1], angles[-1], pointInterval)
-                    # leftPoint[0] -= 10
-                    rightPoint = getPointAlongLine(midPoints[-1][0], midPoints[-1][1], angles[-1], pointInterval)
-                    # rightPoint[0] += 10
+                    rightPoint = leftPoint
+                else:
+                    leftPoint = getPointAlongLine(whitePoint[0], whitePoint[1], angles[-1] + math.pi, 5)
+                    rightPoint = leftPoint
+
                 # print(angles)
                 # print(leftPoint, rightPoint)
 
-                if len(angles) == 0:
-                    leftPoint = getFirstWhitePoint(leftPoint[0], leftPoint[1], 0, searchRange)
-                    rightPoint = getFirstWhitePoint(rightPoint[0], rightPoint[1], math.pi, searchRange)
-                else:
-                    leftPoint = getFirstWhitePoint(leftPoint[0], leftPoint[1], angles[-1] + math.pi/2, searchRange)
-                    rightPoint = getFirstWhitePoint(rightPoint[0], rightPoint[1], angles[-1] - math.pi/2, searchRange)
+                leftPoint = getFirstWhitePoint(leftPoint[0], leftPoint[1], angles[-1] - math.pi/2, searchRange)
+                rightPoint = getFirstWhitePoint(rightPoint[0], rightPoint[1], angles[-1] + math.pi/2, searchRange)
 
                 if rightPoint[0] != -1:
                     rightPoints.append(rightPoint)
@@ -209,23 +216,26 @@ try:
                     angles.append(angle)
 
 
+            # print(angles)
             # print(midPoints)
 
-            # if len(angles) >= 2:
-            #     print(angles[1])
-            #     pidQueue.append(-(angles[1] + math.pi / 2)/5)
-            # if len(pidQueue) <= 0:
-            #     contr.pid(0)
-            # else:
-            #     contr.pid(pidQueue.pop(0))
+            if len(angles) >= 2:
+                # pidQueue.append(-(angles[1] + math.pi / 2)/5)
+                anglesToAvg = 4
+                avgAngle = sum([-(angles[i] + math.pi / 2) * (anglesToAvg - i) / anglesToAvg  for i in range(min(len(angles), anglesToAvg))]) / min(len(angles), anglesToAvg)
+                pidQueue.append(avgAngle)
+            if len(pidQueue) <= 0:
+                contr.pid(0)
+            else:
+                contr.pid(pidQueue.pop(0))
             frame = cv.cvtColor(frame, cv.COLOR_GRAY2BGR)
             for i in range(points):
                 for p in leftPoints:
                     cv.circle(frame, p, 5, (255, 0, 0), -1)
-                for p in centroids:
-                    cv.circle(frame, [int(p[0]), int(p[1])], 5, (255, 255, 0), -1)
                 for p in rightPoints:
                     cv.circle(frame, p, 5, (0, 255, 0), -1)
+                for p in centroids:
+                    cv.circle(frame, [int(p[0]), int(p[1])], 5, (255, 255, 0), -1)
                 for j in range(len(midPoints) - 1):
                     cv.line(frame, midPoints[j], midPoints[j + 1], (0, 0, 255), 1)
                     # cv.circle(frame, (int((leftPoints[j][0] + rightPoints[j][0]) / 2), int((leftPoints[j][1] + rightPoints[j][1]) / 2)), 5, (255, 0, 0), -1)

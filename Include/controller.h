@@ -26,6 +26,7 @@ public:
     void pid(float steering);
     void setSpeed(int speed);
     void setPID(float kp, float ki, float kd, float setpoint);
+    void setDistanceThresh(int cm);
     ~Controller();
 
 private:
@@ -40,18 +41,19 @@ private:
         TURN_SPEED,
         PID,
     };
-    int speed;
-    float kp, ki, kd, setpoint;
+    volatile int speed;
+    volatile float kp, ki, kd, setpoint;
+    volatile int distanceThresh;
 
     std::atomic<uint64_t> interruptToken;
 
     std::mutex actionMutex;
-    command action;
-    int forwardSpeed;
-    int forwardCentimeters;
-    float turnDegrees;
-    int turnSpeed;
-    float pidSteering;
+    volatile command action;
+    volatile int forwardSpeed;
+    volatile int forwardCentimeters;
+    volatile float turnDegrees;
+    volatile int turnSpeed;
+    volatile float pidSteering;
 
     void controlThreadMain();
     std::thread controlThread;
