@@ -3,12 +3,24 @@ import cv2 as cv
 import math
 from src import config
 import copy
+from controller import Controller
+import time
 
 class lane_finder:
     def __init__(self):
         self.source_frame = np.ones((480, 640), dtype=np.uint8)
         self.lanes = []
+        self.pidQueue = []
+        self.contr = Controller()
+        self.contr.setSpeed(config.speed)
+        self.contr.setPID(config.kp, config.ki, config.kd, config.kdef)
 
+        self.contr.setDistanceThresh(40)
+        self.contr.startThread()
+        time.sleep(5)
+
+    def stop_controller(self):
+        self.contr.stopThread()
 
     def getPointAlongLine(self, x, y, theta, distance):
         return [int(x + distance * math.cos(theta)), int(y + distance * math.sin(theta))]
@@ -66,20 +78,20 @@ class lane_finder:
         kernel = np.ones((9, 9), np.uint8)
 
         cv.rectangle(self.source_frame,
-                     [int(config.lane_finder_source_width * 0.39), int(config.lane_finder_source_height * 0.91)],
-                     [int(config.lane_finder_source_width * 0.40), int(config.lane_finder_source_height * 0.87)],
+                     [int(config.lane_finder_source_width * 0.14), int(config.lane_finder_source_height * 0.85)],
+                     [int(config.lane_finder_source_width * 0.15), int(config.lane_finder_source_height * 0.80)],
                      (255, 255, 255), -1)
         cv.rectangle(self.source_frame,
-                     [int(config.lane_finder_source_width * 0.56), int(config.lane_finder_source_height * 0.91)],
-                     [int(config.lane_finder_source_width * 0.57), int(config.lane_finder_source_height * 0.87)],
+                     [int(config.lane_finder_source_width * 0.85), int(config.lane_finder_source_height * 0.85)],
+                     [int(config.lane_finder_source_width * 0.86), int(config.lane_finder_source_height * 0.80)],
                      (255, 255, 255), -1)
         cv.rectangle(self.source_frame,
-                     [int(config.lane_finder_source_width * 0.39), int(config.lane_finder_source_height * 1)],
-                     [int(config.lane_finder_source_width * 0.40), int(config.lane_finder_source_height * 0.93)],
+                     [int(config.lane_finder_source_width * 0.19), int(config.lane_finder_source_height * 1)],
+                     [int(config.lane_finder_source_width * 0.20), int(config.lane_finder_source_height * 0.90)],
                      (255, 255, 255), -1)
         cv.rectangle(self.source_frame,
-                     [int(config.lane_finder_source_width * 0.56), int(config.lane_finder_source_height * 1)],
-                     [int(config.lane_finder_source_width * 0.57), int(config.lane_finder_source_height * 0.93)],
+                     [int(config.lane_finder_source_width * 0.80), int(config.lane_finder_source_height * 1)],
+                     [int(config.lane_finder_source_width * 0.81), int(config.lane_finder_source_height * 0.90)],
                      (255, 255, 255), -1)
 
         ## bridging gaps between lane markings
@@ -102,15 +114,15 @@ class lane_finder:
 
         leftPoints = [
             [int(config.lane_finder_source_width * 0.40), int(config.lane_finder_source_height * 1)],
-            [int(config.lane_finder_source_width * 0.40), int(config.lane_finder_source_height * 0.95)],
+            [int(config.lane_finder_source_width * 0.40), int(config.lane_finder_source_height * 0.99)],
         ]
         rightPoints = [
             [int(config.lane_finder_source_width * 0.60), int(config.lane_finder_source_height * 1)],
-            [int(config.lane_finder_source_width * 0.60), int(config.lane_finder_source_height * 0.95)],
+            [int(config.lane_finder_source_width * 0.60), int(config.lane_finder_source_height * 0.99)],
         ]
         midPoints = [
             [int(config.lane_finder_source_width * 0.50), int(config.lane_finder_source_height * 1)],
-            [int(config.lane_finder_source_width * 0.50), int(config.lane_finder_source_height * 0.95)],
+            [int(config.lane_finder_source_width * 0.50), int(config.lane_finder_source_height * 0.99)],
         ]
         angles = []
         dx = midPoints[-2][0] - midPoints[-1][0]
@@ -125,6 +137,7 @@ class lane_finder:
             leftPoint = None
             rightPoint = None
             tries_without_finds += 1
+            # print(tries_without_finds, midPoints[-1], angles[-1])
             whitePoint = self.getFirstWhitePoint(midPoints[-1][0], midPoints[-1][1], angles[-1], config.lane_finder_search_interval * tries_without_finds)
             if whitePoint[0] == -1:
                 leftPoint = self.getPointAlongLine(midPoints[-1][0], midPoints[-1][1], angles[-1], config.lane_finder_search_interval * tries_without_finds)
@@ -150,7 +163,7 @@ class lane_finder:
                 dx = midPoints[-2][0] - midPoints[-1][0]
                 dy = midPoints[-2][1] - midPoints[-1][1]
                 angle = math.atan2(dy, dx) - math.pi
-                angle = min(0, max(angle, -math.pi))
+                angle = min(-math.pi / 4, max(angle, -3 * math.pi / 4))
                 angles.append(angle)
 
         # if len(angles) >= 2:
@@ -161,7 +174,29 @@ class lane_finder:
         # if len(pidQueue) <= 0:
         #     contr.pid(0)
         # else:
-        #     contr.pid(pidQueue.pop(0))
+        first_angle = 1
+        last_angle = 4
+        angles = []
+        for i in range(len(midPoints) - 1):
+            dx = midPoints[i][0] - midPoints[i+1][0]
+            dy = midPoints[i][1] - midPoints[i+1][1]
+            angle = math.atan2(dy, dx) - math.pi
+            # angle = min(-math.pi / 4, max(angle, -3 * math.pi / 4))
+            angles.append(angle)
+        # avgAngle = sum([-(angles[i] + math.pi / 2) / anglesToAvg  for i in range(min(len(angles), anglesToAvg))]) / min(len(angles), anglesToAvg)
+        # avg_angle = 0
+        # weight = 0
+        # for i in range(min(len(angles), len(config.lane_finder_angle_weights))):
+        #     avg_angle += -(angles[i] + math.pi / 2) * config.lane_finder_angle_weights[i]
+        #     weight += config.lane_finder_angle_weights[i]
+        # avg_angle = avg_angle/weight
+        avg_angle = sum([-(angles[i] + math.pi / 2) / (last_angle - first_angle)  for i in range(first_angle, min(len(angles), last_angle))])
+        avg_angle = (avg_angle * 2 - (angles[1] + math.pi / 2) * 3) / 5
+        print(avg_angle)
+        self.pidQueue.append(avg_angle)
+        if len(self.pidQueue) >= 6:
+            self.contr.pid(self.pidQueue.pop(0))
+        # self.contr.pid(avgAngle)
 
         ## display
         self.source_frame = cv.cvtColor(self.source_frame, cv.COLOR_GRAY2BGR)

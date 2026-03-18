@@ -21,13 +21,6 @@ frame = cam.capture_array()
 api = web_API()
 lane = lane_finder()
 
-# contr = Controller()
-# contr.setSpeed(70)
-# contr.setPID(0.3, 0.1, 0.1, -0.03)
-#
-# contr.setDistanceThresh(40)
-# contr.startThread()
-# time.sleep(5)
 
 
 
@@ -45,5 +38,5 @@ try:
 
 except KeyboardInterrupt:
     pass
-# finally:
-#     contr.stopThread()
+finally:
+    lane.stop_controller()
