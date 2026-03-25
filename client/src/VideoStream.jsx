@@ -32,7 +32,7 @@ export default function VideoStream() {
     }, []);
 
     return (
-        <div>
+        <div className="col-span-4 col-start-1 row-span-4 row-start-1">
             <canvas ref={canvasRef} />
         </div>
     );

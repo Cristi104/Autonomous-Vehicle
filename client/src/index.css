@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+/* WebKit (Chrome, Edge, Safari) */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 12px;
+  width: 12px;
+  background: oklch(90.1% 0.058 230.902); /* blue-600 */
+  border-radius: 9999px;
+  cursor: pointer;
+  border: none;
+}
+
+/* Firefox */
+input[type="range"]::-moz-range-thumb {
+  height: 12px;
+  width: 12px;
+  background: #2563eb;
+  border-radius: 9999px;
+  cursor: pointer;
+  border: none;
+}

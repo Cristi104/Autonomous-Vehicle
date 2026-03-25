@@ -3,7 +3,6 @@ import cv2 as cv
 import math
 from src import config
 import copy
-from controller import Controller
 import time
 
 class lane_finder:
@@ -11,13 +10,6 @@ class lane_finder:
         self.source_frame = np.ones((480, 640), dtype=np.uint8)
         self.lanes = []
         self.pidQueue = []
-        self.contr = Controller()
-        self.contr.setSpeed(config.speed)
-        self.contr.setPID(config.kp, config.ki, config.kd, config.kdef)
-
-        self.contr.setDistanceThresh(40)
-        self.contr.startThread()
-        time.sleep(5)
 
     def stop_controller(self):
         self.contr.stopThread()
@@ -192,11 +184,8 @@ class lane_finder:
         # avg_angle = avg_angle/weight
         avg_angle = sum([-(angles[i] + math.pi / 2) / (last_angle - first_angle)  for i in range(first_angle, min(len(angles), last_angle))])
         avg_angle = (avg_angle * 2 - (angles[1] + math.pi / 2) * 3) / 5
-        print(avg_angle)
+        # print(avg_angle)
         self.pidQueue.append(avg_angle)
-        if len(self.pidQueue) >= 6:
-            self.contr.pid(self.pidQueue.pop(0))
-        # self.contr.pid(avgAngle)
 
         ## display
         self.source_frame = cv.cvtColor(self.source_frame, cv.COLOR_GRAY2BGR)

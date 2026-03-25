@@ -7,6 +7,7 @@ import time
 from src import config
 from src.lane_finder import lane_finder
 from src.web_API import web_API
+from controller import Controller
 
 from extern.pybind11.docs.conf import latex_engine, primary_domain
 
@@ -21,8 +22,42 @@ frame = cam.capture_array()
 api = web_API()
 lane = lane_finder()
 
+contr = Controller()
+contr.setSpeed(config.speed)
+contr.setPID(config.kp, config.ki, config.kd, config.kdef)
 
+contr.setDistanceThresh(40)
+contr.startThread()
+time.sleep(5)
 
+enabled = False
+
+def process_web_input():
+    command = api.control_queue_pop().split()
+    if command[0] != '[NONE]':
+        print(command)
+    match command[0]:
+        case "[STOP]":
+            enabled = False
+        case "[GO]":
+            enabled = True
+        case "[SPEED]":
+            config.speed = int(command[1])
+            contr.setSpeed(config.speed)
+        case "[KP]":
+            config.kp = int(command[1])
+            contr.setPID(config.kp, config.ki, config.kd, config.kdef)
+        case "[KI]":
+            config.ki = float(command[1])
+            contr.setPID(config.kp, config.ki, config.kd, config.kdef)
+        case "[KD]":
+            config.kd = float(command[1])
+            contr.setPID(config.kp, config.ki, config.kd, config.kdef)
+        case "[KDEF]":
+            config.kdef = float(command[1])
+            contr.setPID(config.kp, config.ki, config.kd, config.kdef)
+        case _:
+            pass
 
 
 try:
@@ -31,8 +66,14 @@ try:
         frame = cam.capture_array()
         frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         frame = cv.rotate(frame, cv.ROTATE_180)
+        process_web_input()
         # frame = cv.resize(frame, None, fx=0.5, fy=0.5)
         frame = lane.process_image(frame)
+        if len(lane.pidQueue) >= 6:
+            if enabled:
+                contr.pid(lane.pidQueue.pop(0))
+            else:
+                lane.pidQueue.pop(0)
         api.send_image(frame)
         # frame = lane.process_image(frame)
 
