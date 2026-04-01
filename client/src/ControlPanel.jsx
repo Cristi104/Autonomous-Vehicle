@@ -80,7 +80,7 @@ export default function VideoStream() {
             <div className="m-1 flex">
               <p className="mx-1 w-22">ki: {ki}</p>
               <input className="w-60 my-auto h-2 bg-blue-800 rounded-md appearance-none cursor-pointer accent-sky-200" 
-                type="range" min="0" max="2" step="0.01" value={ki} onChange={(e) => {setKi(Number(e.target.value))}} />
+                type="range" min="0" max="0.5" step="0.001" value={ki} onChange={(e) => {setKi(Number(e.target.value))}} />
               <button className="bg-blue-800 rounded-md mx-1 px-1 hover:bg-blue-700 active:bg-blue-900" onClick={() => {
                 wsRef.current.send(`[KI] ${ki}`)
               }}>Update</button>
@@ -89,7 +89,7 @@ export default function VideoStream() {
             <div className="m-1 flex">
               <p className="mx-1 w-22">kd: {kd}</p>
               <input className="w-60 my-auto h-2 bg-blue-800 rounded-md appearance-none cursor-pointer accent-sky-200" 
-                type="range" min="0" max="2" step="0.01" value={kd} onChange={(e) => {setKd(Number(e.target.value))}} />
+                type="range" min="0" max="0.5" step="0.001" value={kd} onChange={(e) => {setKd(Number(e.target.value))}} />
               <button className="bg-blue-800 rounded-md mx-1 px-1 hover:bg-blue-700 active:bg-blue-900" onClick={() => {
                 wsRef.current.send(`[KD] ${kd}`)
               }}>Update</button>
@@ -98,7 +98,7 @@ export default function VideoStream() {
             <div className="m-1 flex">
               <p className="mx-1 w-22">kdef: {kdef}</p>
               <input className="w-60 my-auto h-2 bg-blue-800 rounded-md appearance-none cursor-pointer accent-sky-200" 
-                type="range" min="-2" max="2" step="0.01" value={kdef} onChange={(e) => {setKdef(Number(e.target.value))}} />
+                type="range" min="-0.5" max="0.5" step="0.001" value={kdef} onChange={(e) => {setKdef(Number(e.target.value))}} />
               <button className="bg-blue-800 rounded-md mx-1 px-1 hover:bg-blue-700 active:bg-blue-900" onClick={() => {
                 wsRef.current.send(`[KDEF] ${kdef}`)
               }}>Update</button>

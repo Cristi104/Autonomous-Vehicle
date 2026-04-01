@@ -33,19 +33,23 @@ time.sleep(5)
 enabled = False
 
 def process_web_input():
+    global enabled
     command = api.control_queue_pop().split()
     if command[0] != '[NONE]':
         print(command)
     match command[0]:
         case "[STOP]":
             enabled = False
+            print(enabled)
+            contr.forwardCm(1)
         case "[GO]":
             enabled = True
+            print(enabled)
         case "[SPEED]":
             config.speed = int(command[1])
             contr.setSpeed(config.speed)
         case "[KP]":
-            config.kp = int(command[1])
+            config.kp = float(command[1])
             contr.setPID(config.kp, config.ki, config.kd, config.kdef)
         case "[KI]":
             config.ki = float(command[1])
@@ -69,7 +73,7 @@ try:
         process_web_input()
         # frame = cv.resize(frame, None, fx=0.5, fy=0.5)
         frame = lane.process_image(frame)
-        if len(lane.pidQueue) >= 6:
+        if len(lane.pidQueue) >= 1:
             if enabled:
                 contr.pid(lane.pidQueue.pop(0))
             else:
@@ -80,4 +84,4 @@ try:
 except KeyboardInterrupt:
     pass
 finally:
-    lane.stop_controller()
+    contr.stopThread()
