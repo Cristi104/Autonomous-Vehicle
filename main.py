@@ -60,6 +60,18 @@ def process_web_input():
         case "[KDEF]":
             config.kdef = float(command[1])
             contr.setPID(config.kp, config.ki, config.kd, config.kdef)
+        case "[CANNY MIN]":
+            config.lane_finder_canny_min = int(command[1])
+        case "[CANNY MAX]":
+            config.lane_finder_canny_max = int(command[1])
+        case "[HOUGH THETA]":
+            config.lane_finder_hough_theta = float(command[1])
+        case "[HOUGH THRESH]":
+            config.lane_finder_hough_thresh = int(command[1])
+        case "[HOUGH MIN LINE LENGTH]":
+            config.lane_finder_hough_min_line_length = int(command[1])
+        case "[HOUGH MAX LINE GAP]":
+            config.lane_finder_hough_max_line_gap = int(command[1])
         case _:
             pass
 

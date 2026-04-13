@@ -5,6 +5,7 @@
 #ifndef LICENTA_MOTORDRIVER_H
 #define LICENTA_MOTORDRIVER_H
 #include <gpiod.hpp>
+#include <optional>
 #include "PWM.h"
 
 

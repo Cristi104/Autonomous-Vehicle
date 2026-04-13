@@ -5,6 +5,8 @@
 #ifndef LICENTA_CONTROLLER_H
 #define LICENTA_CONTROLLER_H
 #include <thread>
+#include <atomic>
+#include <mutex>
 
 #include "motorDriver.h"
 #include "mpu6500.h"

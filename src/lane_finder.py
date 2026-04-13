@@ -46,7 +46,6 @@ class lane_finder:
 
         M = cv.getPerspectiveTransform(pts1, pts2)
         self.source_frame = cv.warpPerspective(self.source_frame, M, (config.lane_finder_source_width, config.lane_finder_source_height))
-        # return self.source_frame
         self.source_frame = cv.adaptiveThreshold(self.source_frame, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 11, -2)
 
         ## removing edges created by thresholding the vision cone
@@ -63,8 +62,12 @@ class lane_finder:
         kernel = np.ones((3, 3), np.uint8)
         self.source_frame = cv.erode(self.source_frame, kernel)
         self.source_frame = cv.GaussianBlur(self.source_frame, (9,9), 0)
-        self.source_frame = cv.Canny(self.source_frame, 200, 250, None, 3)
-        linesP = cv.HoughLinesP(self.source_frame, 1, np.pi / 180, 50, None, 10, 50)
+        self.source_frame = cv.Canny(self.source_frame, config.lane_finder_canny_min, config.lane_finder_canny_max, None, 3)
+        linesP = cv.HoughLinesP(self.source_frame, 1, 
+                                config.lane_finder_hough_theta, 
+                                config.lane_finder_hough_thresh, 
+                                config.lane_finder_hough_min_line_length, 
+                                config.lane_finder_hough_max_line_gap)
 
         self.source_frame = np.zeros((config.lane_finder_source_height, config.lane_finder_source_width), np.uint8)
         # if linesP is not None:

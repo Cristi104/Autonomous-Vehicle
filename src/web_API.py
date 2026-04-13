@@ -69,6 +69,12 @@ class web_API:
                     "ki": config.ki,
                     "kd": config.kd,
                     "kdef": config.kdef,
+                    "canny min": config.lane_finder_canny_min,
+                    "canny max": config.lane_finder_canny_max,
+                    "hough theta": config.lane_finder_hough_theta,
+                    "hough thresh": config.lane_finder_hough_thresh,
+                    "hough min line length": config.lane_finder_hough_min_line_length,
+                    "hough max line gap": config.lane_finder_hough_max_line_gap,
             }
 
         self.run_api_thread()

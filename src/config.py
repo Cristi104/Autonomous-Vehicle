@@ -1,3 +1,6 @@
+import numpy as np
+
+
 source_width = 1296 # 0 - 1920
 source_height = 972 # 0 - 1080
 
@@ -38,6 +41,12 @@ lane_finder_search_interval = 35 # >0
 lane_finder_search_range = 460 # > 20% of image size
 lane_finder_search_points = 8 # > 5
 
+## canny
+lane_finder_canny_min = 200
+lane_finder_canny_max = 250
 
-
-
+## hough
+lane_finder_hough_theta= np.pi/180
+lane_finder_hough_thresh = 50
+lane_finder_hough_min_line_length = 10
+lane_finder_hough_max_line_gap = 50

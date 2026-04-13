@@ -6,6 +6,7 @@
 #define LICENTA_ULTRASONICDISTANCE_H
 
 #include <gpiod.hpp>
+#include <optional>
 
 class UltrasonicDistance {
 public:

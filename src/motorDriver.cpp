@@ -4,14 +4,11 @@
 
 #include "../Include/motorDriver.h"
 
-#include <array>
-#include <cstring>
-#include <iostream>
 
 #include "../Include/gpioChip.h"
 
 #define MIN_DUTY_CYCLE 0
-#define MAX_DUTY_CYCLE 100000
+#define MAX_DUTY_CYCLE 50000
 
 MotorDriver::MotorDriver(gpiod::chip &chip, unsigned int digitalLF, unsigned int digitalLB, unsigned int digitalRF, unsigned int digitalRB)
     :isOn(false), chip(chip), lf(digitalLF), lb(digitalLB), rf(digitalRF), rb(digitalRB), PWML(0, 0), PWMR(0, 1),

@@ -2,15 +2,11 @@
 // Created by cristi on 22.01.2026.
 //
 #include <chrono>
-#include <iostream>
 #include <thread>
 
 #include <gpiod.hpp>
 
 #include "Include/controller.h"
-#include "Include/mpu6500.h"
-#include "Include/motorDriver.h"
-#include "Include/ultrasonicDistance.h"
 
 #include "pybind11/pybind11.h"
 

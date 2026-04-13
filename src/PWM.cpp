@@ -14,7 +14,7 @@ PWM::PWM(int chip, int channel)
 
     write(base + "/export", channel);
     usleep(100000);
-    setPeriod(100000);
+    setPeriod(50000);
     // enable(true);
 }
 void PWM::setPeriod(int period_ns) {
