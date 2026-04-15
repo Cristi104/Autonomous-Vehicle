@@ -2,12 +2,12 @@
 // Created by cristi on 23.01.2026.
 //
 
-#include "../Include/ultrasonicDistance.h"
+#include "../../Include/HWController/ultrasonicDistance.h"
+#include "../../Include/HWController/gpioChip.h"
 
 #include <chrono>
 #include <unistd.h>
 
-#include "../Include/gpioChip.h"
 
 UltrasonicDistance::UltrasonicDistance(gpiod::chip &chip, unsigned int trig, unsigned int echo)
     : chip(chip), trig(trig), echo(echo), distance(1000), event(1) {

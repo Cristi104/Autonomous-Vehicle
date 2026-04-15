@@ -1,83 +1,127 @@
-//
-// Created by cristi on 22.01.2026.
-//
-#include <chrono>
-#include <thread>
-
-#include <gpiod.hpp>
-
-#include "Include/controller.h"
-
-#include "pybind11/pybind11.h"
-
-namespace py = pybind11;
-PYBIND11_MODULE(controller, m, py::mod_gil_not_used()) {
-    py::class_<Controller>(m, "Controller")
-        .def(py::init())
-        .def("startThread", &Controller::startThread)
-        .def("stopThread", &Controller::stopThread)
-        .def("forwardCm", &Controller::forwardCm)
-        .def("forwardWithSpeed", &Controller::forwardWithSpeed)
-        .def("setSpeed", &Controller::setSpeed)
-        .def("turnDeg", &Controller::turnDeg)
-        .def("turnWithSpeed", &Controller::turnWithSpeed)
-        .def("setPID", &Controller::setPID)
-        .def("setDistanceThresh", &Controller::setDistanceThresh)
-        .def("pid", &Controller::pid);
+#include <opencv2/opencv.hpp>
+#include <App.h>
+int main (int argc, char *argv[]) {
+  uWS::App().get("/hello", [](auto *res, auto *req) {
+    res->end("Hello World!");
+  }).listen(3000, [](auto *token) {
+            if (token) {
+                std::cout << "Listening on port 3000\n";
+            } else {
+                std::cout << "Failed to listen\n";
+            }
+        }).run();
+  // std::ofstream file("./config.txt");
+  // file << Config::GetInstance();
+  // file.close();
+  // Config::GetInstance().getItem("source_height");
+  // Config::GetInstance().setItem("source_height", 800);
+  // std::ifstream filein("./config.txt");
+  // filein >> Config::GetInstance();
+  // filein.close();
+  // std::cout << Config::GetInstance();
+  // std::string pipeline =
+  //     "libcamerasrc ! video/x-raw,width=640,height=480,framerate=30/1 ! "
+  //     "videoconvert ! appsink";
+  //
+  // cv::VideoCapture cap(pipeline, cv::CAP_GSTREAMER);
+  //
+  // if (!cap.isOpened()) {
+  //     std::cerr << "Failed to open camera!" << std::endl;
+  // }
+  //
+  // cv::Mat frame;
+  // while (true) {
+  //     cap >> frame;
+  //     if (frame.empty()) break;
+  //
+  //     cv::imshow("Camera", frame);
+  //     if (cv::waitKey(1) == 27) break;
+  // }
+  // return 0;
 }
 
-int main() {
-    Controller controller;
-    controller.setSpeed(50);
-    controller.startThread();
-    // std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-    // controller.pid(-0.0);
-    // controller.forwardCm(40);
-    controller.turnDeg(90);
-    // controller.backward(20);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    controller.stopThread();
-    // controller.turnoff();
-    // MPU6500::Instance()->test();
-    // MotorDriver::Instance()->setBias(-0.11);
-    // MotorDriver::Instance()->setDirectionLF(true);
-    // MotorDriver::Instance()->setDirectionRF(true);
-    // MotorDriver::Instance()->setDirectionLB(true);
-    // MotorDriver::Instance()->setDirectionRB(true);
-    // MotorDriver::Instance()->setSpeedL(0);
-    // MotorDriver::Instance()->setSpeedR(0);
-    // MotorDriver::Instance()->startMotor();
-    // MotorDriver::Instance()->setSpeedL(30);
-    // MotorDriver::Instance()->setSpeedR(30);
-    // MotorDriver::Instance()->stopMotor();
-    // MPU6500 mpu;
-    // PWM pwml(0, 0), pwmr(0, 1);
-    // pwml.setPeriod(100000);
-    // pwmr.setPeriod(100000);
-    // pwml.setDuty(25000);
-    // pwmr.setDuty(50000);
-    // pwml.enable(true);
-    // pwmr.enable(true)
 
-    // UltrasonicDistance ultrasonic(chip, 8, 7);
-    // for (int i=0; i<10; i++) {
-    //     ultrasonic.ping();
-    //     while (!ultrasonic.update());
-    //     std::cout << ultrasonic.getDistance() << std::endl;
-    //     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    // }
 
-    // MotorDriver driver(chip, 20, 16, 26, 19);
-    // driver.setBias(-0.11);
-    // driver.setDirectionLF(true);
-    // driver.setDirectionRF(true);
-    // driver.setDirectionLB(true);
-    // driver.setDirectionRB(true);
-    // driver.setSpeedL(90);
-    // driver.setSpeedR(90);
-    // driver.startMotor();
-    // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    // driver.stopMotor();
-    // // pwml.enable(false);
-    // // pwmr.enable(false);
-}
+// //
+// // Created by cristi on 22.01.2026.
+// //
+// #include <chrono>
+// #include <thread>
+//
+// #include <gpiod.hpp>
+//
+// #include "Include/controller.h"
+//
+// #include "pybind11/pybind11.h"
+//
+// namespace py = pybind11;
+// PYBIND11_MODULE(controller, m, py::mod_gil_not_used()) {
+//     py::class_<Controller>(m, "Controller")
+//         .def(py::init())
+//         .def("startThread", &Controller::startThread)
+//         .def("stopThread", &Controller::stopThread)
+//         .def("forwardCm", &Controller::forwardCm)
+//         .def("forwardWithSpeed", &Controller::forwardWithSpeed)
+//         .def("setSpeed", &Controller::setSpeed)
+//         .def("turnDeg", &Controller::turnDeg)
+//         .def("turnWithSpeed", &Controller::turnWithSpeed)
+//         .def("setPID", &Controller::setPID)
+//         .def("setDistanceThresh", &Controller::setDistanceThresh)
+//         .def("pid", &Controller::pid);
+// }
+//
+// int main() {
+//     Controller controller;
+//     controller.setSpeed(50);
+//     controller.startThread();
+//     // std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+//     // controller.pid(-0.0);
+//     // controller.forwardCm(40);
+//     controller.turnDeg(90);
+//     // controller.backward(20);
+//     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+//     controller.stopThread();
+//     // controller.turnoff();
+//     // MPU6500::Instance()->test();
+//     // MotorDriver::Instance()->setBias(-0.11);
+//     // MotorDriver::Instance()->setDirectionLF(true);
+//     // MotorDriver::Instance()->setDirectionRF(true);
+//     // MotorDriver::Instance()->setDirectionLB(true);
+//     // MotorDriver::Instance()->setDirectionRB(true);
+//     // MotorDriver::Instance()->setSpeedL(0);
+//     // MotorDriver::Instance()->setSpeedR(0);
+//     // MotorDriver::Instance()->startMotor();
+//     // MotorDriver::Instance()->setSpeedL(30);
+//     // MotorDriver::Instance()->setSpeedR(30);
+//     // MotorDriver::Instance()->stopMotor();
+//     // MPU6500 mpu;
+//     // PWM pwml(0, 0), pwmr(0, 1);
+//     // pwml.setPeriod(100000);
+//     // pwmr.setPeriod(100000);
+//     // pwml.setDuty(25000);
+//     // pwmr.setDuty(50000);
+//     // pwml.enable(true);
+//     // pwmr.enable(true)
+//
+//     // UltrasonicDistance ultrasonic(chip, 8, 7);
+//     // for (int i=0; i<10; i++) {
+//     //     ultrasonic.ping();
+//     //     while (!ultrasonic.update());
+//     //     std::cout << ultrasonic.getDistance() << std::endl;
+//     //     std::this_thread::sleep_for(std::chrono::milliseconds(500));
+//     // }
+//
+//     // MotorDriver driver(chip, 20, 16, 26, 19);
+//     // driver.setBias(-0.11);
+//     // driver.setDirectionLF(true);
+//     // driver.setDirectionRF(true);
+//     // driver.setDirectionLB(true);
+//     // driver.setDirectionRB(true);
+//     // driver.setSpeedL(90);
+//     // driver.setSpeedR(90);
+//     // driver.startMotor();
+//     // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+//     // driver.stopMotor();
+//     // // pwml.enable(false);
+//     // // pwmr.enable(false);
+// }

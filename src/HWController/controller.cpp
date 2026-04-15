@@ -2,11 +2,8 @@
 // Created by cristi on 26.01.2026.
 //
 
-#include "../Include/controller.h"
-#include <chrono>
+#include "../../Include/HWController/controller.h"
 #include <iostream>
-#include <thread>
-#include "../Include/gpioChip.h"
 
 Controller::Controller()
     :delta(0), timeSinceMPUUpdate(1000), timeSinceDistanceUpdate(1000), running(false), speed(50),

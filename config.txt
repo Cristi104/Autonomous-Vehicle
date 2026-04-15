@@ -1,0 +1,20 @@
+LD_canny_max: int 250
+LD_canny_min: int 200
+LD_hough_max_line_gap: int 50
+LD_hough_min_line_length: int 10
+LD_hough_theta: float 0.0174533
+LD_hough_thresh: int 50
+LD_search_interval: int 35
+LD_search_points: int 8
+LD_search_range: int 460
+LD_source_height: int 480
+LD_source_width: int 640
+LD_transform_dest: vfloat 0 0 1 0 0.3 1 0.7 1 
+LD_transform_source: vfloat 0 0 1 0 0 1 1 1 
+kd: float 0
+kdef: float 0
+ki: float 0
+kp: float 0.4
+source_height: int 972
+source_width: int 1296
+speed: int 50

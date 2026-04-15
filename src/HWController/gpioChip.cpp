@@ -2,7 +2,7 @@
 // Created by cristi on 28.01.2026.
 //
 
-#include "../Include/gpioChip.h"
+#include "../../Include/HWController/gpioChip.h"
 
 GpioChip * GpioChip::instance = nullptr;
 gpiod::chip & GpioChip::Instance() {

@@ -1,17 +1,17 @@
 #include <cstring>
-#include <iostream>
 #include <linux/i2c-dev.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#include <cstdint>
 #include <unistd.h>
 #include <fcntl.h>
+#include "../../Include/HWController/mpu6500.h"
+#include <iostream>
+#include <iomanip>
 #include <chrono>
+#include <algorithm>
 #include <thread>
-#include "../Include/mpu6500.h"
 
-#include <cmath>
 
 #define DEV_FILE "/dev/i2c-1"
 

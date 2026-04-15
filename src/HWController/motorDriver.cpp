@@ -2,10 +2,8 @@
 // Created by cristi on 22.01.2026.
 //
 
-#include "../Include/motorDriver.h"
-
-
-#include "../Include/gpioChip.h"
+#include "../../Include/HWController/motorDriver.h"
+#include "../../Include/HWController/gpioChip.h"
 
 #define MIN_DUTY_CYCLE 0
 #define MAX_DUTY_CYCLE 50000
