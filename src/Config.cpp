@@ -1,5 +1,6 @@
 #include "../Include/Config.h"
 #include <cmath>
+#include <sstream>
 #include <vector>
 
 Config::Config() {
@@ -15,7 +16,7 @@ Config::Config() {
   values["LD_transform_source"] = std::vector<float>{0, 0, 1, 0, 0, 1, 1, 1};
   values["LD_transform_dest"] = std::vector<float>{0, 0, 1, 0, 0.3, 1, 0.7, 1};
   values["LD_search_interval"] = 35;
-  values["LD_search_range"] = 460;
+  values["LD_search_range"] = 200;
   values["LD_search_points"] = 8;
   values["LD_canny_min"] = 200;
   values["LD_canny_max"] = 250;
@@ -36,15 +37,46 @@ std::variant<int, float, std::vector<float>> Config::getItem(const std::string &
   std::lock_guard<std::mutex> lock(mutex);
   return values.at(name);
 }
-void Config::setItem(const std::string &name, int value) {
-  std::lock_guard<std::mutex> lock(mutex);
-  values[name] = value;
-}
-void Config::setItem(const std::string &name, float value) {
-  std::lock_guard<std::mutex> lock(mutex);
-  values[name] = value;
-}
-void Config::setItem(const std::string &name, std::vector<float> value) {
-  std::lock_guard<std::mutex> lock(mutex);
-  values[name] = value;
+std::string Config::json() {
+  std::stringstream stream;
+  stream << "{\n";
+
+  auto it = values.begin();
+  while (it != values.end()) {
+    const auto& [key, value] = *it;
+
+    stream << "\"" << key << "\": ";
+
+    std::visit([&stream](const auto& v) {
+      using T = std::decay_t<decltype(v)>;
+
+      if constexpr (std::is_same_v<T, int>) {
+        stream << v;
+      }
+      else if constexpr (std::is_same_v<T, float>) {
+        stream << v;
+      }
+      else if constexpr (std::is_same_v<T, std::vector<float>>) {
+        stream << "[";
+        for (int i = 0; i < v.size(); i++) {
+          stream << v[i];
+          if (i != v.size() - 1){
+            stream << ", ";
+          }
+        }
+        stream << "]";
+      }
+    }, value);
+
+    // Only add a comma if it's NOT the last element
+    if (std::next(it) != values.end()) {
+      stream << ",\n";
+    } else {
+      stream << "\n"; // Newline for the last element, no comma
+    }
+    ++it;
+  }
+
+  stream << "}\n";
+  return stream.str();
 }

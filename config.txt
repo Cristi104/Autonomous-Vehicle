@@ -6,7 +6,7 @@ LD_hough_theta: float 0.0174533
 LD_hough_thresh: int 50
 LD_search_interval: int 35
 LD_search_points: int 8
-LD_search_range: int 460
+LD_search_range: int 200
 LD_source_height: int 480
 LD_source_width: int 640
 LD_transform_dest: vfloat 0 0 1 0 0.3 1 0.7 1 

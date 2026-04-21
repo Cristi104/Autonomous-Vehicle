@@ -1,15 +1,11 @@
+#include "Include/Config.h"
+#include "Include/WebAPI.h"
 #include <opencv2/opencv.hpp>
 #include <App.h>
 int main (int argc, char *argv[]) {
-  uWS::App().get("/hello", [](auto *res, auto *req) {
-    res->end("Hello World!");
-  }).listen(3000, [](auto *token) {
-            if (token) {
-                std::cout << "Listening on port 3000\n";
-            } else {
-                std::cout << "Failed to listen\n";
-            }
-        }).run();
+  WebAPI::GetInstance().run();
+  std::cout << Config::GetInstance().json();
+
   // std::ofstream file("./config.txt");
   // file << Config::GetInstance();
   // file.close();

@@ -27,15 +27,15 @@ public:
         using T = std::decay_t<decltype(v)>;
 
         if constexpr (std::is_same_v<T, int>) {
-            stream << "int " << v;
+          stream << "int " << v;
         }
         else if constexpr (std::is_same_v<T, float>) {
-            stream << "float " << v;
+          stream << "float " << v;
         }
         else if constexpr (std::is_same_v<T, std::vector<float>>) {
-            stream << "vfloat ";
-            for (const auto& f : v)
-                stream << f << " ";
+          stream << "vfloat ";
+          for (const auto& f : v)
+            stream << f << " ";
         }
       }, value);
 
@@ -81,9 +81,12 @@ public:
   static Config &GetInstance();
 
   std::variant<int, float, std::vector<float>> getItem(const std::string &name);
-  void setItem(const std::string &name, int value);
-  void setItem(const std::string &name, float value);
-  void setItem(const std::string &name, std::vector<float> value);
+  template<typename T>
+  void setItem(const std::string &name, T value){
+    std::lock_guard<std::mutex> lock(mutex);
+    values[name] = value;
+  }
+  std::string json();
 protected:
   Config();
   ~Config();
