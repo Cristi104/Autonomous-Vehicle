@@ -1,11 +1,7 @@
-#include "Include/Config.h"
-#include "Include/WebAPI.h"
+#include "Include/App.h"
 #include <opencv2/opencv.hpp>
-#include <App.h>
 int main (int argc, char *argv[]) {
-  WebAPI::GetInstance().run();
-  std::cout << Config::GetInstance().json();
-
+  App::GetInstance().run();
   // std::ofstream file("./config.txt");
   // file << Config::GetInstance();
   // file.close();

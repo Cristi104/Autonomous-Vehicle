@@ -2,6 +2,7 @@
 #define WEBAPI_H
 
 #include <App.h>
+#include <opencv2/core/mat.hpp>
 #include <opencv2/opencv.hpp>
 
 struct PerClientData {};
@@ -12,9 +13,10 @@ public:
   WebAPI &operator=(WebAPI &&) = delete;
   WebAPI &operator=(const WebAPI &) = delete;
   virtual ~WebAPI();
-  void streamMain();
+  // void streamMain();
 
   static WebAPI &GetInstance();
+  void setFrame(const cv::Mat &frame);
 private:
   WebAPI();
   std::mutex frame_mutex;

@@ -4,6 +4,7 @@
 #include <vector>
 
 Config::Config() {
+  values["on"] = 0;
   values["source_width"] = 1296;
   values["source_height"] = 972;
   values["speed"] = 50;
@@ -15,6 +16,7 @@ Config::Config() {
   values["LD_source_height"] = 480;
   values["LD_transform_source"] = std::vector<float>{0, 0, 1, 0, 0, 1, 1, 1};
   values["LD_transform_dest"] = std::vector<float>{0, 0, 1, 0, 0.3, 1, 0.7, 1};
+  values["LD_angle_weights"] = std::vector<float>{0, 3, 2, 1, 0};
   values["LD_search_interval"] = 35;
   values["LD_search_range"] = 200;
   values["LD_search_points"] = 8;
@@ -38,6 +40,7 @@ std::variant<int, float, std::vector<float>> Config::getItem(const std::string &
   return values.at(name);
 }
 std::string Config::json() {
+  std::lock_guard<std::mutex> lock(mutex);
   std::stringstream stream;
   stream << "{\n";
 

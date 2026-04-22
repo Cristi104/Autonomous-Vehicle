@@ -100,7 +100,7 @@ class lane_finder:
         # cv.rectangle(self.source_frame,
         #              [int(config.lane_finder_source_width * 0.20), int(config.lane_finder_source_height * 0.99)],
         #              [int(config.lane_finder_source_width * 0.80), int(config.lane_finder_source_height * 1)],
-        #              (255, 255, 255), -1)
+  #              (255, 255, 255), -1)
         # cv.rectangle(self.source_frame,
         #              [int(config.lane_finder_source_width * 0.24), int(config.lane_finder_source_height * 0.85)],
         #              [int(config.lane_finder_source_width * 0.25), int(config.lane_finder_source_height * 0.80)],
@@ -129,7 +129,7 @@ class lane_finder:
                 continue
             for j in range(i + 1, len(centroids)):
                 c2 = centroids[j]
-                # if stats[j][4] < 70:
+  # if stats[j][4] < 70:
                 #     continue
                 if(math.sqrt((c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2) < 90):
                     cv.line(self.source_frame, [int(c1[0]), int(c1[1])], [int(c2[0]), int(c2[1])], (255, 0, 0), 3)

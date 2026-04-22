@@ -1,25 +1,44 @@
 #include "../Include/App.h"
-#include <opencv2/opencv.hpp>
+#include "../Include/WebAPI.h"
+#include "../Include/Config.h"
+#include "../Include/Camera.h"
 App::App() {
-    std::string pipeline =
-        "libcamerasrc ! video/x-raw,width=640,height=480,framerate=30/1 ! "
-        "videoconvert ! appsink";
 
-    cv::VideoCapture cap(pipeline, cv::CAP_GSTREAMER);
-
-    if (!cap.isOpened()) {
-        std::cerr << "Failed to open camera!" << std::endl;
-    }
-
-    cv::Mat frame;
-    while (true) {
-        cap >> frame;
-        if (frame.empty()) break;
-
-        cv::imshow("Camera", frame);
-        if (cv::waitKey(1) == 27) break;
-    }
 }
 
 App::~App() {
+}
+
+App &App::GetInstance() {
+  static App app;
+  return app;
+}
+
+void App::run() {
+  mainThread = std::thread(&App::main, this);
+  WebAPI::GetInstance().run();
+}
+
+void App::main() {
+
+  while (true) {
+#if defined(__linux__) && (defined(__arm__) || defined(__aarch64__))
+    contr.setPID(
+        std::get<float>(Config::GetInstance().getItem("LD_kp")),
+        std::get<float>(Config::GetInstance().getItem("LD_ki")),
+        std::get<float>(Config::GetInstance().getItem("LD_kd")),
+        std::get<float>(Config::GetInstance().getItem("LD_kdef"))
+    );
+    if (!std::get<int>(Config::GetInstance().getItem("on"))) {
+      contr.pid(ld.getPIDValue());
+    }
+#endif
+    frame = Camera::GetInstance().getFrame();
+    if (frame.empty()) {
+      continue;
+    } else {
+      frame = ld.processImage(frame);
+    }
+    WebAPI::GetInstance().setFrame(frame);
+  }
 }

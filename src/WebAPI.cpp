@@ -188,3 +188,8 @@ WebAPI &WebAPI::GetInstance(){
 
 WebAPI::~WebAPI() {
 }
+
+void WebAPI::setFrame(const cv::Mat &frame) {
+  std::lock_guard<std::mutex> lock(frame_mutex);
+  current_frame = frame;
+}
