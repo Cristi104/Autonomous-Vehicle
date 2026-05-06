@@ -1,5 +1,10 @@
 #include "../Include/LaneDetector.h"
 #include "../Include/Config.h"
+#include <iostream>
+#include <iterator>
+#include <opencv2/core.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/imgproc.hpp>
 #include <vector>
 
 LaneDetector::LaneDetector() {
@@ -94,6 +99,14 @@ cv::Mat LaneDetector::processImage(const cv::Mat& image) {
       cv::Scalar(255), 3);
   }
 
+  cv::Rect roi(140, 0, 360, 280);
+  cv::Mat sub = sourceFrame(roi);
+  if(cv::countNonZero(sub) == 0) {
+    Config::GetInstance().setItem("on", 0);
+    return sourceFrame;
+  }
+
+
 
   leftPoints.clear();
   rightPoints.clear();
@@ -102,29 +115,29 @@ cv::Mat LaneDetector::processImage(const cv::Mat& image) {
 
   leftPoints.emplace_back(
       std::get<int>(Config::GetInstance().getItem("LD_source_width")) * 0.30,
-      std::get<int>(Config::GetInstance().getItem("LD_source_width")) * 0.99
+      std::get<int>(Config::GetInstance().getItem("LD_source_height")) * 0.99
   );
   leftPoints.emplace_back(
       std::get<int>(Config::GetInstance().getItem("LD_source_width")) * 0.30,
-      std::get<int>(Config::GetInstance().getItem("LD_source_width")) * 0.98
+      std::get<int>(Config::GetInstance().getItem("LD_source_height")) * 0.98
   );
 
   rightPoints.emplace_back(
       std::get<int>(Config::GetInstance().getItem("LD_source_width")) * 0.70,
-      std::get<int>(Config::GetInstance().getItem("LD_source_width")) * 0.99
+      std::get<int>(Config::GetInstance().getItem("LD_source_height")) * 0.99
   );
   rightPoints.emplace_back(
       std::get<int>(Config::GetInstance().getItem("LD_source_width")) * 0.70,
-      std::get<int>(Config::GetInstance().getItem("LD_source_width")) * 0.98
+      std::get<int>(Config::GetInstance().getItem("LD_source_height")) * 0.98
   );
 
   midPoints.emplace_back(
       std::get<int>(Config::GetInstance().getItem("LD_source_width")) * 0.50,
-      std::get<int>(Config::GetInstance().getItem("LD_source_width")) * 0.99
+      std::get<int>(Config::GetInstance().getItem("LD_source_height")) * 0.99
   );
   midPoints.emplace_back(
       std::get<int>(Config::GetInstance().getItem("LD_source_width")) * 0.50,
-      std::get<int>(Config::GetInstance().getItem("LD_source_width")) * 0.98
+      std::get<int>(Config::GetInstance().getItem("LD_source_height")) * 0.98
   );
 
   angles.emplace_back(std::atan2(midPoints[0].y - midPoints[1].y, midPoints[0].x - midPoints[1].x) - CV_PI);
@@ -150,6 +163,11 @@ cv::Mat LaneDetector::processImage(const cv::Mat& image) {
       left = getPointAlongLine(white.x, white.y, angles.back() + CV_PI, 5);
       right = left;
     }
+    // cv::cvtColor(sourceFrame, sourceFrame, cv::COLOR_GRAY2BGR);
+    // cv::circle(sourceFrame, left, 50, cv::Scalar(255, 0, 0));
+    // cv::circle(sourceFrame, right, 50, cv::Scalar(0, 255, 0));
+    // cv::circle(sourceFrame, cv::Point(300, 200), 50, cv::Scalar(0, 255, 0));
+    // return sourceFrame;
 
     cv::Point lp = getFirstWhitePoint(left.x, left.y, angles.back() - CV_PI/2,
         std::get<int>(Config::GetInstance().getItem("LD_search_range")));
@@ -187,7 +205,9 @@ cv::Mat LaneDetector::processImage(const cv::Mat& image) {
   if (weight > 0)
     avg_angle /= weight;
 
-  pidQueue.push_back(avg_angle);
+  if (pidQueue.empty()) {
+    pidQueue.push_back(avg_angle);
+  }
 
   cv::cvtColor(sourceFrame, sourceFrame, cv::COLOR_GRAY2BGR);
 
@@ -200,6 +220,8 @@ cv::Mat LaneDetector::processImage(const cv::Mat& image) {
   for (size_t i = 1; i < midPoints.size(); i++)
     cv::line(sourceFrame, midPoints[i-1], midPoints[i],
     cv::Scalar(0, 0, 255), 1);
+
+  cv::rectangle(sourceFrame, roi, cv::Scalar(127, 127, 0), 2);
 
   return sourceFrame;
 }

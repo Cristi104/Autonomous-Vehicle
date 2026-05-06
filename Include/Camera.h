@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include <opencv2/opencv.hpp>
+#include <queue>
 
 class Camera {
 public:
@@ -16,6 +17,10 @@ public:
 protected:
   Camera();
 private:
+#if defined(__linux__) && (defined(__arm__) || defined(__aarch64__))
+#else 
+  std::queue<std::string> data;
+#endif
   cv::Mat frame;
   cv::VideoCapture cap;
   

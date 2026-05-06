@@ -48,11 +48,11 @@ export default function VideoStream() {
       <div className="col-span-4 col-start-1 row-span-1 row-start-5 flex">
         <div className="text-sky-200">
           <button className="bg-blue-800 rounded-md mx-1 px-1 hover:bg-blue-700 active:bg-blue-900" onClick={() => {
-            wsRef.current.send('ON: 0')
+            wsRef.current.send('on: 0')
           }}>STOP</button>
           
           <button className="bg-blue-800 rounded-md mx-1 px-1 hover:bg-blue-700 active:bg-blue-900" onClick={() => {
-            wsRef.current.send('ON: 1')
+            wsRef.current.send('on: 1')
           }}>GO</button>
           <button className="bg-blue-800 rounded-md mx-1 px-1 hover:bg-blue-700 active:bg-blue-900" onClick={() => {
             setIsOpen(true)

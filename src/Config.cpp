@@ -1,6 +1,10 @@
 #include "../Include/Config.h"
 #include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <ostream>
 #include <sstream>
+#include <stdexcept>
 #include <vector>
 
 Config::Config() {
@@ -16,7 +20,7 @@ Config::Config() {
   values["LD_source_height"] = 480;
   values["LD_transform_source"] = std::vector<float>{0, 0, 1, 0, 0, 1, 1, 1};
   values["LD_transform_dest"] = std::vector<float>{0, 0, 1, 0, 0.3, 1, 0.7, 1};
-  values["LD_angle_weights"] = std::vector<float>{0, 3, 2, 1, 0};
+  values["LD_angle_weights"] = std::vector<float>{0, 5, 2, 1, 0.5, 0.5};
   values["LD_search_interval"] = 35;
   values["LD_search_range"] = 200;
   values["LD_search_points"] = 8;
@@ -37,7 +41,12 @@ Config &Config::GetInstance() {
 }
 std::variant<int, float, std::vector<float>> Config::getItem(const std::string &name) {
   std::lock_guard<std::mutex> lock(mutex);
-  return values.at(name);
+  try {
+    return values.at(name);
+  } catch (std::out_of_range &e) {
+    std::cout << e.what() << '\n' << name << std::endl;
+    exit(1);
+  }
 }
 std::string Config::json() {
   std::lock_guard<std::mutex> lock(mutex);
