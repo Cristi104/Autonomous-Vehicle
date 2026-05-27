@@ -41,7 +41,7 @@ export default function VideoStream() {
     }, []);
 
     return (
-        <div className="col-span-4 p-1 col-start-1 row-span-4 row-start-1 w-full h-full">
+        <div className="p-1 w-full h-full">
             <canvas ref={canvasRef} className="rounded-lg w-full h-full block" />
         </div>
     );

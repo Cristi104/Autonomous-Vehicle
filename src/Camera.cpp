@@ -31,7 +31,6 @@ Camera::~Camera() {
 const cv::Mat &Camera::getFrame() {
 #if defined(__linux__) && (defined(__arm__) || defined(__aarch64__))
   cap >> frame;
-  cv::rotate(frame, frame, cv::ROTATE_180);
 #else 
   cap >> frame;
   if (frame.empty()) {

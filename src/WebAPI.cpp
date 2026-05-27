@@ -4,7 +4,9 @@
 #include <App.h>
 #include <algorithm>
 #include <chrono>
+#include <fstream>
 #include <iterator>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -124,6 +126,12 @@ WebAPI::WebAPI() : uWS::App(), running_stream(true) {
         std::string key, value;
         iss >> key >> value;
         key.erase(std::find(std::begin(key), std::end(key), ':'));
+        if (key == "save") {
+          std::ofstream out("config.txt");
+          out << Config::GetInstance();
+          out.close();
+          return ;
+        }
         ValueType variant = Config::GetInstance().getItem(key);
         updateVariantIfTypeMatches(variant, value);
         Config::GetInstance().setItem(key, variant);

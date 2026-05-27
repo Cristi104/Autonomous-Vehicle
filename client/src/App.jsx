@@ -13,7 +13,7 @@ function App() {
 
   return (
     <>
-      <div className="gap-1 h-screen grid grid-cols-5 grid-rows-5 p-4 bg-stone-900">
+      <div className="h-screen bg-stone-900">
         <VideoStream />
         <ControlPanel />
         {/*<Console />*/}

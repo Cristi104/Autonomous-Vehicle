@@ -4,6 +4,7 @@
 #include "../Include/Camera.h"
 #include <chrono>
 #include <csignal>
+#include <sstream>
 #include <thread>
 App::App() {
 #if defined(__linux__) && (defined(__arm__) || defined(__aarch64__))
@@ -35,6 +36,7 @@ void App::main() {
   int running = 0;
   while (true) {
     auto time = std::chrono::high_resolution_clock::now();
+    float val = ld.getPIDValue();
 #if defined(__linux__) && (defined(__arm__) || defined(__aarch64__))
     contr.setPID(
         std::get<float>(Config::GetInstance().getItem("kp")),
@@ -45,8 +47,9 @@ void App::main() {
     this->contr.setSpeed(std::get<int>(Config::GetInstance().getItem("speed")));
     if (std::get<int>(Config::GetInstance().getItem("on"))) {
       running = 1;
-      float val = ld.getPIDValue();
-      contr.pid(val);
+      if (val != 0) {
+        contr.pid(val);
+      }
     } else {
       if (running == 1) {
         running = 0;
@@ -60,6 +63,10 @@ void App::main() {
     } else {
       frame = ld.processImage(frame);
     }
+    std::ostringstream ss;
+    ss << val;
+    std::string text(ss.str());
+    cv::putText(frame, text, cv::Point(0, 400), cv::FONT_HERSHEY_COMPLEX, 0.5, cv::Scalar(255, 0, 0));
     WebAPI::GetInstance().setFrame(frame);
     auto time2 = std::chrono::high_resolution_clock::now();
     std::cout << "[PROCES TIME] " << time2 - time << '\n';

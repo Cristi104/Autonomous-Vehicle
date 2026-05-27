@@ -2,6 +2,7 @@
 #define LANE_DETECTOR_H
 
 #include <deque>
+#include <opencv2/core/types.hpp>
 #include <opencv2/opencv.hpp>
 #include <vector>
 
@@ -19,7 +20,13 @@ public:
   cv::Mat processImage(const cv::Mat& image);
   float getPIDValue();
 private:
+  cv::Mat addAnotations(const cv::Mat& image);
   cv::Mat sourceFrame;
+  cv::Mat M;
+  cv::Rect roi;
+  std::vector<float> srcPts;
+  std::vector<float> dstPts;
+  std::deque<cv::Mat> history;
   std::deque<float> pidQueue;
 
   std::vector<cv::Point> leftPoints;

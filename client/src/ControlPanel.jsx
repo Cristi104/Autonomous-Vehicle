@@ -24,6 +24,9 @@ export default function VideoStream() {
     }, []);
 
     useEffect(() => {
+      if (isOpen) {
+        return
+      }
       async function fetch_data() {
         const response = await fetch(`http://${ENDPOINT_URL}/config`)
         const fetchdata = await response.json()
@@ -31,12 +34,12 @@ export default function VideoStream() {
         setLoaded(true);
       }
       fetch_data()
-    }, [])
+    }, [isOpen])
     
     if (!loaded) {
       
       return (
-        <div className="col-span-4 col-start-1 row-span-1 row-start-5 flex">
+        <div className="bg-black/50 p-2 absolute bottom-0 left-0 flex rounded-md">
           <div className="text-sky-200">
             Loading
           </div>
@@ -45,7 +48,8 @@ export default function VideoStream() {
     }
 
     return (
-      <div className="col-span-4 col-start-1 row-span-1 row-start-5 flex">
+      <div className="bg-black/50 p-2 absolute bottom-0 left-0 flex rounded-md">
+      <p>test</p>
         <div className="text-sky-200">
           <button className="bg-blue-800 rounded-md mx-1 px-1 hover:bg-blue-700 active:bg-blue-900" onClick={() => {
             wsRef.current.send('on: 0')
@@ -63,6 +67,13 @@ export default function VideoStream() {
               <div className="rounded-2xl shadow-xl p-6 w-240 bg-slate-900" onClick={(e) => e.stopPropagation()}>
                 <div>
                 <p>General settings</p>
+                <button className="bg-blue-800 rounded-md mx-1 px-1 hover:bg-blue-700 active:bg-blue-900" onClick={() => {
+                  wsRef.current.send('debug_view: 0')
+                }}>debug view off</button>
+                
+                <button className="bg-blue-800 rounded-md mx-1 px-1 hover:bg-blue-700 active:bg-blue-900" onClick={() => {
+                  wsRef.current.send('debug_view: 1')
+                }}>debug view on</button>
                 <Slider ws={wsRef} name="speed" minv={0} maxv={100} step={1} defv={data["speed"]}/>
                 <p>PID controller tweaks</p>
                 <Slider ws={wsRef} name="kp" minv={0} maxv={2} step={0.01} defv={data["kp"]}/>
@@ -79,7 +90,6 @@ export default function VideoStream() {
                 <Slider ws={wsRef} name="LD_hough_theta" minv={0} maxv={Math.PI/45} step={Math.PI/1800} defv={data["LD_hough_theta"]}/>
                 <Slider ws={wsRef} name="LD_hough_thresh" minv={0} maxv={255} step={1} defv={data["LD_hough_thresh"]}/>
                 <p>Path finding algoritm</p>
-                <Slider ws={wsRef} name="LD_hough_max_line_gap" minv={0} maxv={255} step={1} defv={data["LD_hough_max_line_gap"]}/>
                 <Slider ws={wsRef} name="LD_search_points" minv={0} maxv={20} step={1} defv={data["LD_search_points"]}/>
                 <Slider ws={wsRef} name="LD_search_interval" minv={0} maxv={60} step={1} defv={data["LD_search_interval"]}/>
                 <Slider ws={wsRef} name="LD_search_range" minv={0} maxv={250} step={1} defv={data["LD_search_range"]}/>
@@ -89,9 +99,12 @@ export default function VideoStream() {
                 <Slider ws={wsRef} name="source_height" minv={240} maxv={1080} step={1} defv={data["source_height"]}/>
                 <Slider ws={wsRef} name="source_width" minv={320} maxv={1920} step={1} defv={data["source_width"]}/>
                 </div>
-                <button className="bg-blue-800 rounded-md mx-2 p-2 hover:bg-blue-700 active:bg-blue-900" onClick={() => {
+                <button className="bg-blue-800 rounded-md mx-1 px-1 hover:bg-blue-700 active:bg-blue-900" onClick={() => {
                   setIsOpen(false)
                 }}>Close</button>
+                <button className="bg-blue-800 rounded-md mx-1 px-1 hover:bg-blue-700 active:bg-blue-900" onClick={() => {
+                  wsRef.current.send('save: 1')
+                }}>save</button>
 
               </div>
             </div>

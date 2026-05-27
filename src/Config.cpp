@@ -1,6 +1,7 @@
 #include "../Include/Config.h"
 #include <cmath>
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <ostream>
 #include <sstream>
@@ -20,7 +21,7 @@ Config::Config() {
   values["LD_source_height"] = 480;
   values["LD_transform_source"] = std::vector<float>{0, 0, 1, 0, 0, 1, 1, 1};
   values["LD_transform_dest"] = std::vector<float>{0, 0, 1, 0, 0.3, 1, 0.7, 1};
-  values["LD_angle_weights"] = std::vector<float>{0, 5, 2, 1, 0.5, 0.5};
+  values["LD_angle_weights"] = std::vector<float>{0, 5, 2, 0};
   values["LD_search_interval"] = 35;
   values["LD_search_range"] = 200;
   values["LD_search_points"] = 8;
@@ -30,6 +31,12 @@ Config::Config() {
   values["LD_hough_thresh"] = 50;
   values["LD_hough_min_line_length"] = 10;
   values["LD_hough_max_line_gap"] = 50;
+  values["debug_view"] = 0;
+  std::ifstream in("config.txt");
+  if (in.good()) {
+    in >> *this;
+  }
+  in.close();
 }
 
 Config::~Config() {
