@@ -10,7 +10,6 @@ public:
   Camera(const Camera &) = delete;
   Camera &operator=(Camera &&) = delete;
   Camera &operator=(const Camera &) = delete;
-  ~Camera();
 
   const cv::Mat &getFrame();
   static Camera &GetInstance();

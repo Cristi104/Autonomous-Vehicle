@@ -12,7 +12,6 @@ public:
   App(const App &) = delete;
   App &operator=(App &&) = delete;
   App &operator=(const App &) = delete;
-  ~App();
   
   static App &GetInstance();
   void run();

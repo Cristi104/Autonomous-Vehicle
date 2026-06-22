@@ -9,12 +9,6 @@
 class LaneDetector{
 public:
   LaneDetector();
-  LaneDetector(LaneDetector &&) = default;
-  LaneDetector(const LaneDetector &) = default;
-  LaneDetector &operator=(LaneDetector &&) = default;
-  LaneDetector &operator=(const LaneDetector &) = default;
-  ~LaneDetector();
-
   cv::Point getPointAlongLine(int x, int y, double theta, int distance);
   cv::Point getFirstWhitePoint(int x, int y, double theta, int length);
   cv::Mat processImage(const cv::Mat& image);
@@ -23,7 +17,6 @@ private:
   cv::Mat addAnotations(const cv::Mat& image);
   cv::Mat sourceFrame;
   cv::Mat M;
-  cv::Rect roi;
   std::vector<float> srcPts;
   std::vector<float> dstPts;
   std::deque<cv::Mat> history;

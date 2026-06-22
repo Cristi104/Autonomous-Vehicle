@@ -20,9 +20,9 @@ Camera::Camera() {
   cap = cv::VideoCapture(pipeline, cv::CAP_GSTREAMER);
 
 #else 
-  cap = cv::VideoCapture("./data4/video0.h264");
+  cap = cv::VideoCapture("./training-data/video0.h264");
   for (int i = 1; i < 2; i++) {
-    data.emplace(std::format("./data4/video{}.h264", i));
+    data.emplace(std::format("./training-data/video{}.h264", i));
   }
 #endif
   newCameraMatrix = cv::getOptimalNewCameraMatrix(
@@ -48,9 +48,6 @@ Camera::Camera() {
   if (!cap.isOpened()) {
       std::cerr << "Failed to open camera!" << std::endl;
   }
-}
-
-Camera::~Camera() {
 }
 
 const cv::Mat &Camera::getFrame() {

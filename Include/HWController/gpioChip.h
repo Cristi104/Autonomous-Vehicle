@@ -9,13 +9,13 @@
 
 class GpioChip {
 public:
-    static gpiod::chip &Instance();
-    static void ResetInstance();
+  static gpiod::chip &Instance();
+  static void ResetInstance();
 private:
-    GpioChip();
-    gpiod::chip chip;
+  GpioChip();
+  gpiod::chip chip;
 
-    static  GpioChip *instance;
+  static  GpioChip *instance;
 };
 
 

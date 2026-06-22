@@ -5,7 +5,7 @@ import numpy as np
 import math
 
 # Load images
-directory_path = "./data2/"
+directory_path = "./camera-distorsion/"
 directory_files = sorted(os.listdir(directory_path))
 
 valid_ext = ('.png', '.jpg', '.jpeg', '.bmp', '.tif', '.tiff')
@@ -118,7 +118,7 @@ print("Diagonal FOV: {:.2f} degrees".format(math.degrees(py_ang(v1, v2))))
 
 # img = imgs[-1]
 
-img = cv.imread("./test.png")
+img = cv.imread("./distorted.png")
 undistorted = cv.undistort(img, intrinsics, dist_coeffs)
 cv.imshow("test", cv.cvtColor(img, cv.COLOR_BGR2RGB))
 cv.waitKey(0)

@@ -12,7 +12,6 @@ public:
   WebAPI(const WebAPI &) = delete;
   WebAPI &operator=(WebAPI &&) = delete;
   WebAPI &operator=(const WebAPI &) = delete;
-  virtual ~WebAPI();
   // void streamMain();
 
   static WebAPI &GetInstance();

@@ -3,13 +3,11 @@
 #include "libusockets.h"
 #include <App.h>
 #include <algorithm>
-#include <chrono>
 #include <fstream>
 #include <iterator>
 #include <ostream>
 #include <sstream>
 #include <string>
-#include <thread>
 #include <variant>
 #include <vector>
 #include <cctype>
@@ -102,6 +100,7 @@ void updateVariantIfTypeMatches(ValueType& var, const std::string& input_str) {
 
 WebAPI::WebAPI() : uWS::App(), running_stream(true) {
   current_frame = cv::Mat(480, 640, CV_8UC3, cv::Scalar(255, 255, 0));
+
   this->get("/config", [](auto *res, auto *req){
     res->writeHeader("Content-Type", "application/json");
     res->writeHeader("Access-Control-Allow-Origin", "*");
@@ -110,6 +109,7 @@ WebAPI::WebAPI() : uWS::App(), running_stream(true) {
     res->writeHeader("Access-Control-Max-Age", "86400");
     res->end(Config::GetInstance().json());
   });
+
   this->ws<PerClientData>("/ws/control", {
     .compression = uWS::SHARED_COMPRESSOR,
     .maxPayloadLength = 16 * 1024,
@@ -142,6 +142,7 @@ WebAPI::WebAPI() : uWS::App(), running_stream(true) {
       std::cout << "Client disconnected" << std::endl;
     }
   });
+
   this->ws<PerClientData>("/ws/video", {
     .compression = uWS::SHARED_COMPRESSOR,
     .maxPayloadLength = 16 * 1024,
@@ -156,6 +157,7 @@ WebAPI::WebAPI() : uWS::App(), running_stream(true) {
     }
 
   });
+
   this->listen(3000, [](auto *token) {
     if (token) {
         std::cout << "Listening on port 3000\n";
@@ -192,9 +194,6 @@ WebAPI::WebAPI() : uWS::App(), running_stream(true) {
 WebAPI &WebAPI::GetInstance(){
   static WebAPI api;
   return api;
-}
-
-WebAPI::~WebAPI() {
 }
 
 void WebAPI::setFrame(const cv::Mat &frame) {

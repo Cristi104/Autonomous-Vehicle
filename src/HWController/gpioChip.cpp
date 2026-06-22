@@ -6,15 +6,15 @@
 
 GpioChip * GpioChip::instance = nullptr;
 gpiod::chip & GpioChip::Instance() {
-    if (instance == nullptr) {
-        instance = new GpioChip;
-    }
-    return instance->chip;
+  if (instance == nullptr) {
+    instance = new GpioChip;
+  }
+  return instance->chip;
 }
 
 void GpioChip::ResetInstance() {
-    delete instance;
-    instance = nullptr;
+  delete instance;
+  instance = nullptr;
 }
 
 GpioChip::GpioChip() :chip(std::filesystem::path("/dev/gpiochip0")) {}
