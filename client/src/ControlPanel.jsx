@@ -84,15 +84,6 @@ export default function VideoStream() {
                 <p>Canny edge detection</p>
                 <Slider ws={wsRef} name="LD_canny_min" minv={0} maxv={255} step={1} defv={data["LD_canny_min"]}/>
                 <Slider ws={wsRef} name="LD_canny_max" minv={0} maxv={255} step={1} defv={data["LD_canny_max"]}/>
-                <p>Hough lines algoritm</p>
-                <Slider ws={wsRef} name="LD_hough_max_line_gap" minv={0} maxv={255} step={1} defv={data["LD_hough_max_line_gap"]}/>
-                <Slider ws={wsRef} name="LD_hough_min_line_length" minv={0} maxv={255} step={1} defv={data["LD_hough_min_line_length"]}/>
-                <Slider ws={wsRef} name="LD_hough_theta" minv={0} maxv={Math.PI/45} step={Math.PI/1800} defv={data["LD_hough_theta"]}/>
-                <Slider ws={wsRef} name="LD_hough_thresh" minv={0} maxv={255} step={1} defv={data["LD_hough_thresh"]}/>
-                <p>Path finding algoritm</p>
-                <Slider ws={wsRef} name="LD_search_points" minv={0} maxv={20} step={1} defv={data["LD_search_points"]}/>
-                <Slider ws={wsRef} name="LD_search_interval" minv={0} maxv={60} step={1} defv={data["LD_search_interval"]}/>
-                <Slider ws={wsRef} name="LD_search_range" minv={0} maxv={250} step={1} defv={data["LD_search_range"]}/>
                 <p>Resolution settings</p>
                 <Slider ws={wsRef} name="LD_source_height" minv={240} maxv={1080} step={1} defv={data["LD_source_height"]}/>
                 <Slider ws={wsRef} name="LD_source_width" minv={320} maxv={1920} step={1} defv={data["LD_source_width"]}/>

@@ -1,22 +1,23 @@
-LD_angle_weights: vfloat 0 5 2 1 
-LD_canny_max: int 250
-LD_canny_min: int 200
-LD_hough_max_line_gap: int 111
-LD_hough_min_line_length: int 58
+LD_angle_weights: vfloat 5 2 1 1 1 
+LD_canny_max: int 84
+LD_canny_min: int 40
+LD_hough_max_line_gap: int 178
+LD_hough_min_line_length: int 13
 LD_hough_theta: float 0.0174533
-LD_hough_thresh: int 50
-LD_search_interval: int 35
-LD_search_points: int 8
+LD_hough_thresh: int 32
+LD_search_interval: int 24
+LD_search_points: int 12
 LD_search_range: int 250
-LD_source_height: int 480
-LD_source_width: int 640
-LD_transform_dest: vfloat 0 0 1 0 0.3 1 0.7 1 
+LD_source_height: int 240
+LD_source_width: int 320
+LD_transform_dest: vfloat 0 0 1 0 0.14 1 0.86 1 
 LD_transform_source: vfloat 0 0 1 0 0 1 1 1 
-kd: float 0
+debug_view: int 0
+kd: float 0.041
 kdef: float 0
 ki: float 0
-kp: float 0.4
+kp: float 0.82
 on: int 0
 source_height: int 972
 source_width: int 1296
-speed: int 50
+speed: int 7

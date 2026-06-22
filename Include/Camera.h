@@ -21,6 +21,11 @@ private:
 #else 
   std::queue<std::string> data;
 #endif
+  cv::Mat cameraMatrix;
+  cv::Mat distCoeffs;
+  cv::Rect validROI;
+  cv::Mat newCameraMatrix;
+  cv::Mat map1, map2;
   cv::Mat frame;
   cv::VideoCapture cap;
   

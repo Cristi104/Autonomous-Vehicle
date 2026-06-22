@@ -29,6 +29,7 @@ private:
   std::deque<cv::Mat> history;
   std::deque<float> pidQueue;
 
+  std::vector<cv::Point> pointsHough;
   std::vector<cv::Point> leftPoints;
   std::vector<cv::Point> rightPoints;
   std::vector<cv::Point> midPoints;

@@ -2,6 +2,7 @@
 Autonomous vehicle is a robotics project (and my bachelors theses) that tries to recreate the self-driving features present on modern cars (Tesla, BYD and others), with the goal of creating a robot car capable of SAE Level 2/3 automation.
 
 #### This project si currently under development
+And this README.md is just a short overview for a more indepth explaination of the project check out my ![Theisis](./docs/Bachelors-theisis.pdf) (written only in romanin)
 
 ## Hardware
 
@@ -58,4 +59,13 @@ sudo chmod +x run.sh
 
 ## Software
 
-For software implementation details you can check the [docs/](docs/README.md) directory (there is just a brief overview of each part more detailed and explicit documentation will be added in the future)
+The software consists of 2 main parts written in C++ the hardware controller, and lane detector those two implement the main functionality of the robot which is then controlled through a web interface.
+
+The hardware controller component is used as an intermediary that handles the logic of controlling the robot's motors and reading sensors independently of other parts of the app while executing stearing commands from the lane detector component.
+
+The lane detector component applies computer vision concepts and methods such as Canny edge detection, Gaussian blur and Zhang's method for camera calibration to detect road markings in front of the robot and use the detected lane to compute stearing commands.
+
+A last part of the project is a simple web interface that connects a remote client to the output of the camera and allows remote controll of the robot.
+
+
+

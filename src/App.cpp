@@ -66,7 +66,7 @@ void App::main() {
     std::ostringstream ss;
     ss << val;
     std::string text(ss.str());
-    cv::putText(frame, text, cv::Point(0, 400), cv::FONT_HERSHEY_COMPLEX, 0.5, cv::Scalar(255, 0, 0));
+    // cv::putText(frame, text, cv::Point(0, 200), cv::FONT_HERSHEY_COMPLEX, 0.5, cv::Scalar(255, 0, 0));
     WebAPI::GetInstance().setFrame(frame);
     auto time2 = std::chrono::high_resolution_clock::now();
     std::cout << "[PROCES TIME] " << time2 - time << '\n';
